@@ -61,8 +61,17 @@ const FI_NAMES = {
   'Uruguay':      'Uruguay',       'USA':          'Yhdysvallat',   'Uzbekistan':   'Uzbekistan',
 };
 
-function fi(name)   { return FI_NAMES[name] || name; }
-function flag(name) { return FLAGS[name]    || '🏳️'; }
+function fi(name)   { return name === 'TBD' ? 'TBD' : (FI_NAMES[name] || name); }
+function flag(name) { return name === 'TBD' ? '🏳️' : (FLAGS[name] || '🏳️'); }
+
+const ROUND_NAMES = {
+  'R32': '32 parhaan kierros',
+  'R16': '16 parhaan kierros',
+  'QF':  'Neljännesvälierät',
+  'SF':  'Välierät',
+  '3.':  'Pronssiottelu',
+  '🏆':  '🏆 Finaali',
+};
 
 const MATCHES = [
   {id:'m01',g:'A',h:'Mexico',       a:'South Africa', t:'2026-06-11T21:00Z'},
@@ -137,6 +146,48 @@ const MATCHES = [
   {id:'m70',g:'K',h:'DR Congo',     a:'Uzbekistan',   t:'2026-06-28T02:30Z'},
   {id:'m71',g:'J',h:'Algeria',      a:'Austria',      t:'2026-06-28T04:00Z'},
   {id:'m72',g:'J',h:'Jordan',       a:'Argentina',    t:'2026-06-28T04:00Z'},
+
+  // ── 32 PARHAAN KIERROS (28.6.–3.7.) ──────────────────────
+  {id:'r01',g:'R32',h:'TBD',a:'TBD',t:'2026-06-28T19:00Z'},  // Los Angeles
+  {id:'r02',g:'R32',h:'TBD',a:'TBD',t:'2026-06-29T17:00Z'},  // Houston
+  {id:'r03',g:'R32',h:'TBD',a:'TBD',t:'2026-06-29T20:30Z'},  // Boston
+  {id:'r04',g:'R32',h:'TBD',a:'TBD',t:'2026-06-30T01:00Z'},  // Monterrey
+  {id:'r05',g:'R32',h:'TBD',a:'TBD',t:'2026-06-30T17:00Z'},  // Dallas
+  {id:'r06',g:'R32',h:'TBD',a:'TBD',t:'2026-06-30T21:00Z'},  // New York/NJ
+  {id:'r07',g:'R32',h:'TBD',a:'TBD',t:'2026-07-01T01:00Z'},  // Mexico City
+  {id:'r08',g:'R32',h:'TBD',a:'TBD',t:'2026-07-01T16:00Z'},  // Atlanta
+  {id:'r09',g:'R32',h:'TBD',a:'TBD',t:'2026-07-01T20:00Z'},  // Seattle
+  {id:'r10',g:'R32',h:'TBD',a:'TBD',t:'2026-07-02T00:00Z'},  // San Francisco
+  {id:'r11',g:'R32',h:'TBD',a:'TBD',t:'2026-07-02T19:00Z'},  // Los Angeles
+  {id:'r12',g:'R32',h:'TBD',a:'TBD',t:'2026-07-02T23:00Z'},  // Toronto
+  {id:'r13',g:'R32',h:'TBD',a:'TBD',t:'2026-07-03T03:00Z'},  // Vancouver
+  {id:'r14',g:'R32',h:'TBD',a:'TBD',t:'2026-07-03T18:00Z'},  // Dallas
+  {id:'r15',g:'R32',h:'TBD',a:'TBD',t:'2026-07-03T22:00Z'},  // Miami
+  {id:'r16',g:'R32',h:'TBD',a:'TBD',t:'2026-07-04T01:30Z'},  // Kansas City
+
+  // ── 16 PARHAAN KIERROS (4.–7.7.) ─────────────────────────
+  {id:'s01',g:'R16',h:'TBD',a:'TBD',t:'2026-07-04T17:00Z'},  // Houston
+  {id:'s02',g:'R16',h:'TBD',a:'TBD',t:'2026-07-04T21:00Z'},  // Philadelphia
+  {id:'s03',g:'R16',h:'TBD',a:'TBD',t:'2026-07-05T16:00Z'},  // Atlanta
+  {id:'s04',g:'R16',h:'TBD',a:'TBD',t:'2026-07-05T20:00Z'},  // New York/NJ
+  {id:'s05',g:'R16',h:'TBD',a:'TBD',t:'2026-07-06T00:00Z'},  // Mexico City
+  {id:'s06',g:'R16',h:'TBD',a:'TBD',t:'2026-07-06T19:00Z'},  // Dallas
+  {id:'s07',g:'R16',h:'TBD',a:'TBD',t:'2026-07-07T00:00Z'},  // Seattle
+  {id:'s08',g:'R16',h:'TBD',a:'TBD',t:'2026-07-07T20:00Z'},  // Vancouver
+
+  // ── NELJÄNNESVÄLIERÄT (9.–11.7.) ─────────────────────────
+  {id:'q01',g:'QF',h:'TBD',a:'TBD',t:'2026-07-09T20:00Z'},   // Boston
+  {id:'q02',g:'QF',h:'TBD',a:'TBD',t:'2026-07-10T19:00Z'},   // Los Angeles
+  {id:'q03',g:'QF',h:'TBD',a:'TBD',t:'2026-07-11T21:00Z'},   // Miami
+  {id:'q04',g:'QF',h:'TBD',a:'TBD',t:'2026-07-12T01:00Z'},   // Kansas City
+
+  // ── VÄLIERÄT (14.–15.7.) ──────────────────────────────────
+  {id:'sf1',g:'SF',h:'TBD',a:'TBD',t:'2026-07-14T19:00Z'},   // Dallas (AT&T)
+  {id:'sf2',g:'SF',h:'TBD',a:'TBD',t:'2026-07-15T19:00Z'},   // Atlanta (Mercedes-Benz)
+
+  // ── PRONSSIOTTELU & FINAALI ────────────────────────────────
+  {id:'tp1',g:'3.',h:'TBD',a:'TBD',t:'2026-07-18T21:00Z'},   // Miami (Hard Rock)
+  {id:'fi1',g:'🏆',h:'TBD',a:'TBD',t:'2026-07-19T19:00Z'},   // New York/NJ (MetLife)
 ];
 
 /* ══════════════════════════════════════════
@@ -152,7 +203,8 @@ let adminOpen   = false;
    APUFUNKTIOT
 ══════════════════════════════════════════ */
 
-function isLocked(m) { return Date.now() >= new Date(m.t).getTime(); }
+function isLocked(m) { return !!ROUND_NAMES[m.g] || Date.now() >= new Date(m.t).getTime(); }
+function isKnockout(m) { return !!ROUND_NAMES[m.g]; }
 
 function fmtTime(iso) {
   return new Date(iso).toLocaleTimeString('fi-FI', {
@@ -231,7 +283,7 @@ function stepPred(id, side, delta) {
 }
 
 function updateProgress() {
-  const open = MATCHES.filter(m => !isLocked(m));
+  const open = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
   const done = open.filter(m => predDone(m.id)).length;
   const pct  = open.length ? Math.round(done / open.length * 100) : 100;
   document.getElementById('progress-fill').style.width  = pct + '%';
@@ -267,7 +319,7 @@ function matchCardHtml(m) {
   const aDisp  = av !== null ? av : '–';
   const hEmpty = hv === null ? ' empty' : '';
   const aEmpty = av === null ? ' empty' : '';
-  return `<div class="match-card ${locked ? 'locked' : ''} ${cardExtraClass(m.id)}" id="mc-${m.id}">
+  return `<div class="match-card ${locked ? 'locked' : ''} ${isKnockout(m) ? 'knockout' : ''} ${cardExtraClass(m.id)}" id="mc-${m.id}">
     <div class="match-row">
       <div class="team-block">
         <span class="flag">${flag(m.h)}</span>
@@ -292,7 +344,7 @@ function matchCardHtml(m) {
       </div>
     </div>
     <div class="match-meta">
-      <span>Lohko ${m.g} &middot; ${fmtTime(m.t)}</span>
+      <span>${ROUND_NAMES[m.g] ? `${fmtDate(m.t)} &middot; ${fmtTime(m.t)}` : `Lohko ${m.g} &middot; ${fmtTime(m.t)}`}</span>
       ${locked ? '<span>&#128274; lukittu</span>' : ''}
     </div>
     ${resultBadge(m.id)}
@@ -301,10 +353,20 @@ function matchCardHtml(m) {
 
 function renderMatches() {
   const sorted = [...MATCHES].sort((a, b) => new Date(a.t) - new Date(b.t));
-  let html = '', lastDay = '';
+  let html = '', lastKey = '';
   for (const m of sorted) {
+    const isKnockout = !!ROUND_NAMES[m.g];
     const day = dayKey(m.t);
-    if (day !== lastDay) { html += `<div class="date-label">${fmtDate(m.t)}</div>`; lastDay = day; }
+    // Lohkovaihe: pelkkä päivämäärä | Jatkovaihe: kierros + päivämäärä
+    const key = isKnockout ? `${m.g}__${day}` : day;
+    if (key !== lastKey) {
+      if (isKnockout) {
+        html += `<div class="date-label">${ROUND_NAMES[m.g]} &middot; ${fmtDate(m.t)}</div>`;
+      } else {
+        html += `<div class="date-label">${fmtDate(m.t)}</div>`;
+      }
+      lastKey = key;
+    }
     html += matchCardHtml(m);
   }
   document.getElementById('matches-container').innerHTML = html;
@@ -389,72 +451,71 @@ function renderLeaderboard() {
 ══════════════════════════════════════════ */
 
 const ACHIEVEMENTS = [
-  // Pistepohjaisia
+  // ── Pistepohjaisia ──────────────────────────────────────────
   {
-    id: 'first_point',
-    icon: '🏆',
+    id:   'first_point',
+    icon: '🌱',
     name: 'Ensimmäinen piste',
     desc: 'Ensimmäinen oikea veikkaus',
     check: ({ stats }) => stats.total >= 1,
   },
   {
-    id: 'ten_points',
+    id:   'ten_points',
     icon: '⭐',
     name: 'Kympin oppilas',
     desc: '10 pistettä yhteensä',
     check: ({ stats }) => stats.total >= 10,
   },
   {
-    id: 'twenty_five_points',
+    id:   'twenty_five_points',
     icon: '🌟',
     name: 'Mestari',
     desc: '25 pistettä yhteensä',
     check: ({ stats }) => stats.total >= 25,
   },
   {
-    id: 'fifty_points',
+    id:   'fifty_points',
     icon: '👑',
     name: 'Legenda',
     desc: '50 pistettä yhteensä',
     check: ({ stats }) => stats.total >= 50,
   },
-  // Tarkkuuspohjaisia
+  // ── Tarkkuuspohjaisia ───────────────────────────────────────
   {
-    id: 'three_exact',
+    id:   'three_exact',
     icon: '🎯',
     name: 'Tarkka-ampuja',
     desc: '3 tarkkaa tulosta (3p)',
     check: ({ stats }) => stats.exact >= 3,
   },
   {
-    id: 'ten_exact',
+    id:   'ten_exact',
     icon: '💎',
     name: 'Timantti',
     desc: '10 tarkkaa tulosta (3p)',
     check: ({ stats }) => stats.exact >= 10,
   },
   {
-    id: 'five_in_a_row',
+    id:   'five_in_a_row',
     icon: '🔥',
     name: 'Tulessa',
-    desc: '5 oikeaa veikkausta peräkkäin',
+    desc: '5 oikeaa voittajaa peräkkäin',
     check: ({ streak }) => streak >= 5,
   },
   {
-    id: 'five_diff',
+    id:   'five_diff',
     icon: '🧠',
     name: 'Strategi',
     desc: 'Oikea maaliero 5 kertaa (2p)',
     check: ({ stats }) => stats.diff >= 5,
   },
-  // Erikoisia
+  // ── Erikoisia ───────────────────────────────────────────────
   {
-    id: 'perfect_start',
+    id:   'perfect_start',
     icon: '⚡',
     name: 'Täydellinen aloitus',
     desc: 'Oikea veikkaus kisojen avauksesta',
     check: ({ preds }) => {
-      const opener = MATCHES.find(m => m.id === 'm01');
       const r = results['m01'];
       const p = preds['m01'];
       if (!r || !p || p.h === null) return false;
@@ -462,41 +523,39 @@ const ACHIEVEMENTS = [
     },
   },
   {
-    id: 'unicorn',
+    id:   'unicorn',
     icon: '🦄',
     name: 'Harvinainen helmi',
     desc: 'Ainoa pelaaja joka veikkasi tietyn ottelun oikein',
     check: ({ preds }) => {
       return MATCHES.some(m => {
         const r = results[m.id]; if (!r) return false;
-        const p = preds[m.id]; if (!p || p.h === null) return false;
+        const p = preds[m.id];   if (!p || p.h === null) return false;
         if (calcPts(p.h, p.a, r.h, r.a) === 0) return false;
-        // Laske kuinka moni muu sai pisteitä tästä ottelusta
-        const others = Object.entries(users).filter(([uname]) => uname !== '').filter(([, udata]) => {
+        const others = Object.values(users).filter(udata => {
           const op = udata.predictions?.[m.id];
           if (!op || op.h === null) return false;
           return calcPts(op.h, op.a, r.h, r.a) > 0;
         });
-        return others.length === 1; // vain yksi pelaaja (itse)
+        return others.length === 1;
       });
     },
   },
   {
-    id: 'gambler',
+    id:   'gambler',
     icon: '🐉',
     name: 'Uhkapeluri',
     desc: 'Veikannut yli 3 maalin eroa ja osunut',
     check: ({ preds }) => {
       return MATCHES.some(m => {
         const r = results[m.id]; if (!r) return false;
-        const p = preds[m.id]; if (!p || p.h === null) return false;
-        const predDiff = Math.abs(p.h - p.a);
-        return predDiff > 3 && calcPts(p.h, p.a, r.h, r.a) > 0;
+        const p = preds[m.id];   if (!p || p.h === null) return false;
+        return Math.abs(p.h - p.a) > 3 && calcPts(p.h, p.a, r.h, r.a) > 0;
       });
     },
   },
   {
-    id: 'world_traveller',
+    id:   'world_traveller',
     icon: '🌍',
     name: 'Maailmanmatkustaja',
     desc: 'Oikea veikkaus jokaisesta lohkosta A–L',
@@ -509,6 +568,86 @@ const ACHIEVEMENTS = [
         if (calcPts(p.h, p.a, r.h, r.a) > 0) hit.add(m.g);
       }
       return [...groups].every(g => hit.has(g));
+    },
+  },
+  // ── Jatkopelit ─────────────────────────────────────────────
+  {
+    id:   'ko_first',
+    icon: '🎬',
+    name: 'Tästä hauskuus alkaa',
+    desc: 'Arvaa jatkopelien ensimmäisen ottelun voittajan oikein',
+    check: ({ preds }) => {
+      const r = results['r01'];
+      const p = preds['r01'];
+      if (!r || !p || p.h === null) return false;
+      return calcPts(p.h, p.a, r.h, r.a) > 0;
+    },
+  },
+  {
+    id:   'ko_exact',
+    icon: '🏹',
+    name: 'Knockoutin kunkku',
+    desc: 'Tarkka tulos jatkopelissä (3p)',
+    check: ({ preds }) => {
+      return MATCHES.filter(m => isKnockout(m)).some(m => {
+        const r = results[m.id]; if (!r) return false;
+        const p = preds[m.id];   if (!p || p.h === null) return false;
+        return calcPts(p.h, p.a, r.h, r.a) === 3;
+      });
+    },
+  },
+  {
+    id:   'crystal_ball',
+    icon: '🔮',
+    name: 'Kristallipallo',
+    desc: 'Arvaa 10 jatko-ottelun voittajaa oikein',
+    check: ({ preds }) => {
+      const hits = MATCHES.filter(m => isKnockout(m)).filter(m => {
+        const r = results[m.id]; if (!r) return false;
+        const p = preds[m.id];   if (!p || p.h === null) return false;
+        return calcPts(p.h, p.a, r.h, r.a) > 0;
+      });
+      return hits.length >= 10;
+    },
+  },
+  {
+    id:   'long_road',
+    icon: '🗺️',
+    name: 'Pitkä matka',
+    desc: 'Oikea veikkaus jokaiselta kierrokselta',
+    check: ({ preds }) => {
+      const rounds = ['R32','R16','QF','SF','🏆'];
+      return rounds.every(round =>
+        MATCHES.filter(m => m.g === round).some(m => {
+          const r = results[m.id]; if (!r) return false;
+          const p = preds[m.id];   if (!p || p.h === null) return false;
+          return calcPts(p.h, p.a, r.h, r.a) > 0;
+        })
+      );
+    },
+  },
+  {
+    id:   'final_master',
+    icon: '🏆',
+    name: 'Finaalin mestari',
+    desc: 'Arvasi finaalin voittajan oikein',
+    check: ({ preds }) => {
+      const r = results['fi1'];
+      const p = preds['fi1'];
+      if (!r || !p || p.h === null) return false;
+      return winner(p.h, p.a) === winner(r.h, r.a);
+    },
+  },
+  {
+    id:   'final_prophet',
+    icon: '✨',
+    name: 'Profeetta',
+    desc: 'Tarkka tulos finaalista — täydellinen turnaus!',
+    check: ({ preds }) => {
+      const r = results['fi1'];
+      const p = preds['fi1'];
+      if (!r || !p || p.h === null) return false;
+      return calcPts(p.h, p.a, r.h, r.a) === 3;
     },
   },
 ];

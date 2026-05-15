@@ -136,7 +136,16 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 7px;
   transition: border-color 0.2s; position: relative; overflow: hidden;
 }
-.match-card.locked { opacity: 0.55; }
+.match-card.knockout {
+  opacity: 0.5;
+  border-color: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+  filter: grayscale(0.6);
+}
+.match-card.knockout .team-name,
+.match-card.knockout .score-display,
+.match-card.knockout .flag { color: var(--text-muted); }
+.match-card.knockout .match-meta { font-style: italic; }
 .match-card.pts-3 { border-color: rgba(212,170,50,0.5);  border-left: 3px solid #c9a020; border-radius: 0 var(--radius) var(--radius) 0; }
 .match-card.pts-2 { border-color: rgba(180,188,196,0.4); border-left: 3px solid #9aaab4; border-radius: 0 var(--radius) var(--radius) 0; }
 .match-card.pts-1 { border-color: rgba(176,128,80,0.35); border-left: 3px solid #a07040; border-radius: 0 var(--radius) var(--radius) 0; }
