@@ -8,16 +8,20 @@ const SUPABASE_URL = 'https://oaoppcicnsnvjkbbjfda.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5my6qDEV3aFTxP8F8xVnlg_2mPaekjo';
 
 /* ── Supabase REST API -apufunktio ── */
-const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-  headers: {
+const api = (path, opts = {}) => {
+  const { headers: extraHeaders, prefer, ...rest } = opts;
+  const method = rest.method || 'GET';
+  const baseHeaders = {
     'apikey':        SUPABASE_KEY,
     'Authorization': `Bearer ${SUPABASE_KEY}`,
     'Content-Type':  'application/json',
-    'Prefer':        opts.prefer || 'return=minimal',
-    ...(opts.headers || {}),
-  },
-  ...opts,
-});
+  };
+  if (method !== 'GET' && method !== 'DELETE') {
+    baseHeaders['Prefer'] = prefer || 'return=minimal';
+  }
+  if (extraHeaders) Object.assign(baseHeaders, extraHeaders);
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: baseHeaders, ...rest });
+};
 
 /* ══════════════════════════════════════════
    DATA – Liput, joukkuenimet, ottelut
@@ -203,7 +207,7 @@ let adminOpen   = false;
    APUFUNKTIOT
 ══════════════════════════════════════════ */
 
-function isLocked(m) { return !!ROUND_NAMES[m.g] || Date.now() >= new Date(m.t).getTime(); }
+function isLocked(m) { return !!ROUND_NAMES[m.g] || !!results[m.id] || Date.now() >= new Date(m.t).getTime(); }
 function isKnockout(m) { return !!ROUND_NAMES[m.g]; }
 
 function fmtTime(iso) {
@@ -382,21 +386,54 @@ function refreshCard(id) {
 async function savePredictions() {
   const name = document.getElementById('username').value.trim();
   if (!name) { toast('Kirjoita nimesi ensin'); return; }
-  const open = MATCHES.filter(m => !isLocked(m));
+  const open = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
   if (!open.some(m => predDone(m.id))) { toast('Syötä vähintään yksi tulos ensin'); return; }
 
   toast('Tallennetaan…');
+
   const rows = Object.entries(predictions)
     .filter(([, v]) => v.h !== null && v.a !== null)
     .map(([match_id, v]) => ({ username: name, match_id, home_goals: v.h, away_goals: v.a }));
 
-  const res = await api('predictions', {
-    method: 'POST',
-    prefer: 'resolution=merge-duplicates',
-    body:   JSON.stringify(rows),
-  });
+  // Hae mitkä rivit jo olemassa tietokannassa
+  const existingRes = await api(`predictions?username=eq.${encodeURIComponent(name)}&select=match_id`);
+  const existingIds = new Set();
+  if (existingRes.ok) {
+    const existing = await existingRes.json();
+    existing.forEach(r => existingIds.add(r.match_id));
+  }
 
-  if (!res.ok) { toast('Virhe tallennuksessa :('); return; }
+  const toInsert = rows.filter(r => !existingIds.has(r.match_id));
+  const toUpdate = rows.filter(r =>  existingIds.has(r.match_id));
+
+  // Lisää uudet
+  if (toInsert.length > 0) {
+    const res = await api('predictions', {
+      method: 'POST',
+      body:   JSON.stringify(toInsert),
+    });
+    if (!res.ok) {
+      const err = await res.text().catch(() => '');
+      console.error('Insert-virhe:', res.status, err);
+      toast('Virhe tallennuksessa :(');
+      return;
+    }
+  }
+
+  // Päivitä olemassa olevat yksi kerrallaan
+  for (const row of toUpdate) {
+    const res = await api(
+      `predictions?username=eq.${encodeURIComponent(name)}&match_id=eq.${row.match_id}`,
+      {
+        method: 'PATCH',
+        body:   JSON.stringify({ home_goals: row.home_goals, away_goals: row.away_goals }),
+      }
+    );
+    if (!res.ok) {
+      const err = await res.text().catch(() => '');
+      console.error('Update-virhe:', row.match_id, res.status, err);
+    }
+  }
 
   currentUser = name;
   localStorage.setItem('wc26_me', name);
@@ -654,13 +691,15 @@ const ACHIEVEMENTS = [
 
 function calcStreak(preds) {
   const sorted = [...MATCHES]
-    .filter(m => results[m.id] && preds[m.id]?.h !== null && preds[m.id]?.a !== null)
+    .filter(m => results[m.id] && preds[m.id] && preds[m.id].h !== null && preds[m.id].a !== null)
     .sort((a, b) => new Date(a.t) - new Date(b.t));
   let best = 0, current = 0;
   for (const m of sorted) {
-    const pts = calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a);
+    const p = preds[m.id];
+    if (!p || p.h === null || p.a === null) { current = 0; continue; }
+    const pts = calcPts(p.h, p.a, results[m.id].h, results[m.id].a);
     if (pts > 0) { current++; best = Math.max(best, current); }
-    else          { current = 0; }
+    else         { current = 0; }
   }
   return best;
 }
@@ -698,11 +737,17 @@ function openProfile(name, rank) {
 
   // Pelatut ottelut
   const played = MATCHES
-    .filter(m => results[m.id] && preds[m.id]?.h !== null && preds[m.id]?.a !== null)
+    .filter(m => results[m.id] && preds[m.id] && preds[m.id].h !== null && preds[m.id].a !== null)
     .sort((a, b) => new Date(a.t) - new Date(b.t));
 
-  const played3 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 3);
-  const played0 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 0);
+  const played3 = played.filter(m => {
+    const p = preds[m.id]; const r = results[m.id];
+    return p && r && calcPts(p.h, p.a, r.h, r.a) === 3;
+  });
+  const played0 = played.filter(m => {
+    const p = preds[m.id]; const r = results[m.id];
+    return p && r && calcPts(p.h, p.a, r.h, r.a) === 0;
+  });
 
   const totalPlayed = played.length;
   const hitRate     = totalPlayed ? Math.round((stats.exact + stats.diff + stats.win) / totalPlayed * 100) : 0;
