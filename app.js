@@ -2,12 +2,12 @@
    MM 2026 Tulosveikkaus – JavaScript
    ═══════════════════════════════════════════ */
 
-/* ── Asetukset – muuta nämä ── */
+/* ── Asetukset – muuta ADMIN_PIN ── */
 const ADMIN_PIN    = '1234';
 const SUPABASE_URL = 'https://oaoppcicnsnvjkbbjfda.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5my6qDEV3aFTxP8F8xVnlg_2mPaekjo';
 
-/* ── Supabase API -apufunktio ── */
+/* ── Supabase REST API -apufunktio ── */
 const api = (path, opts = {}) => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
   headers: {
     'apikey':        SUPABASE_KEY,
@@ -43,28 +43,27 @@ const FLAGS = {
 };
 
 const FI_NAMES = {
-  'Algeria':      'Algeria',       'Argentina':    'Argentiina',   'Australia':    'Australia',
-  'Austria':      'Itävalta',      'Belgium':      'Belgia',       'Bosnia':       'Bosnia-Hertsegovina',
-  'Brazil':       'Brasilia',      'Canada':       'Kanada',       'Cape Verde':   'Kap Verde',
-  'Colombia':     'Kolumbia',      'Croatia':      'Kroatia',      'Czechia':      'Tšekki',
+  'Algeria':      'Algeria',       'Argentina':    'Argentiina',    'Australia':    'Australia',
+  'Austria':      'Itävalta',      'Belgium':      'Belgia',        'Bosnia':       'Bosnia-Hertsegovina',
+  'Brazil':       'Brasilia',      'Canada':       'Kanada',        'Cape Verde':   'Kap Verde',
+  'Colombia':     'Kolumbia',      'Croatia':      'Kroatia',       'Czechia':      'Tšekki',
   'Curacao':      'Curaçao',       'DR Congo':     'Kongon dem. tasavalta', 'Ecuador': 'Ecuador',
-  'Egypt':        'Egypti',        'England':      'Englanti',     'France':       'Ranska',
-  'Germany':      'Saksa',         'Ghana':        'Ghana',        'Haiti':        'Haiti',
-  'Iran':         'Iran',          'Iraq':         'Irak',         'Ivory Coast':  'Norsunluurannikko',
-  'Japan':        'Japani',        'Jordan':       'Jordania',     'Mexico':       'Meksiko',
-  'Morocco':      'Marokko',       'Netherlands':  'Alankomaat',   'New Zealand':  'Uusi-Seelanti',
-  'Norway':       'Norja',         'Panama':       'Panama',       'Paraguay':     'Paraguay',
-  'Portugal':     'Portugali',     'Qatar':        'Qatar',        'Saudi Arabia': 'Saudi-Arabia',
-  'Scotland':     'Skotlanti',     'Senegal':      'Senegal',      'South Africa': 'Etelä-Afrikka',
-  'South Korea':  'Etelä-Korea',   'Spain':        'Espanja',      'Sweden':       'Ruotsi',
-  'Switzerland':  'Sveitsi',       'Tunisia':      'Tunisia',      'Turkiye':      'Turkki',
-  'Uruguay':      'Uruguay',       'USA':          'Yhdysvallat',  'Uzbekistan':   'Uzbekistan',
+  'Egypt':        'Egypti',        'England':      'Englanti',      'France':       'Ranska',
+  'Germany':      'Saksa',         'Ghana':        'Ghana',         'Haiti':        'Haiti',
+  'Iran':         'Iran',          'Iraq':         'Irak',          'Ivory Coast':  'Norsunluurannikko',
+  'Japan':        'Japani',        'Jordan':       'Jordania',      'Mexico':       'Meksiko',
+  'Morocco':      'Marokko',       'Netherlands':  'Alankomaat',    'New Zealand':  'Uusi-Seelanti',
+  'Norway':       'Norja',         'Panama':       'Panama',        'Paraguay':     'Paraguay',
+  'Portugal':     'Portugali',     'Qatar':        'Qatar',         'Saudi Arabia': 'Saudi-Arabia',
+  'Scotland':     'Skotlanti',     'Senegal':      'Senegal',       'South Africa': 'Etelä-Afrikka',
+  'South Korea':  'Etelä-Korea',   'Spain':        'Espanja',       'Sweden':       'Ruotsi',
+  'Switzerland':  'Sveitsi',       'Tunisia':      'Tunisia',       'Turkiye':      'Turkki',
+  'Uruguay':      'Uruguay',       'USA':          'Yhdysvallat',   'Uzbekistan':   'Uzbekistan',
 };
 
 function fi(name)   { return FI_NAMES[name] || name; }
 function flag(name) { return FLAGS[name]    || '🏳️'; }
 
-/* Kaikki 72 lohkovaiheen ottelua – aloitusajat UTC-muodossa */
 const MATCHES = [
   {id:'m01',g:'A',h:'Mexico',       a:'South Africa', t:'2026-06-11T21:00Z'},
   {id:'m02',g:'A',h:'South Korea',  a:'Czechia',      t:'2026-06-12T04:00Z'},
@@ -160,13 +159,11 @@ function fmtTime(iso) {
     hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Helsinki',
   });
 }
-
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('fi-FI', {
     weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Helsinki',
   });
 }
-
 function dayKey(iso) {
   return new Date(iso).toLocaleDateString('fi-FI', { timeZone: 'Europe/Helsinki' });
 }
@@ -176,12 +173,11 @@ function dayKey(iso) {
 ══════════════════════════════════════════ */
 
 function winner(h, a) { return h > a ? 'home' : a > h ? 'away' : 'draw'; }
-
 function calcPts(ph, pa, rh, ra) {
   if ([ph, pa, rh, ra].some(v => v === null || v === undefined)) return null;
   const pw = winner(ph, pa), rw = winner(rh, ra);
-  if (pw !== rw)             return 0;
-  if (ph === rh && pa === ra) return 3;
+  if (pw !== rw)              return 0;
+  if (ph === rh && pa === ra)  return 3;
   if ((ph - pa) === (rh - ra)) return 2;
   return 1;
 }
@@ -217,7 +213,7 @@ async function loadAllPredictions() {
 }
 
 /* ══════════════════════════════════════════
-   VEIKKAUKSET – logiikka ja HTML
+   VEIKKAUKSET
 ══════════════════════════════════════════ */
 
 function getPred(id)  { return predictions[id] || { h: null, a: null }; }
@@ -238,9 +234,9 @@ function updateProgress() {
   const open = MATCHES.filter(m => !isLocked(m));
   const done = open.filter(m => predDone(m.id)).length;
   const pct  = open.length ? Math.round(done / open.length * 100) : 100;
-  document.getElementById('progress-fill').style.width   = pct + '%';
-  document.getElementById('progress-label').textContent  = `${done} / ${open.length} avoimesta ottelusta veikattuna`;
-  document.getElementById('progress-pct').textContent    = pct + '%';
+  document.getElementById('progress-fill').style.width  = pct + '%';
+  document.getElementById('progress-label').textContent = `${done} / ${open.length} avoimesta ottelusta veikattuna`;
+  document.getElementById('progress-pct').textContent   = pct + '%';
 }
 
 function resultBadge(id) {
@@ -321,7 +317,6 @@ function refreshCard(id) {
   if (el && m) el.outerHTML = matchCardHtml(m);
 }
 
-/* ── Tallenna veikkaukset ── */
 async function savePredictions() {
   const name = document.getElementById('username').value.trim();
   if (!name) { toast('Kirjoita nimesi ensin'); return; }
@@ -353,15 +348,15 @@ async function savePredictions() {
 ══════════════════════════════════════════ */
 
 function calcUser(preds) {
-  let total = 0, exact = 0, diff = 0, win = 0;
+  let total = 0, exact = 0, diff = 0, win = 0, miss = 0;
   for (const m of MATCHES) {
     const r = results[m.id]; if (!r) continue;
     const p = preds[m.id];   if (!p || p.h === null || p.a === null) continue;
     const pts = calcPts(p.h, p.a, r.h, r.a);
     total += pts;
-    if (pts === 3) exact++; else if (pts === 2) diff++; else if (pts === 1) win++;
+    if (pts === 3) exact++; else if (pts === 2) diff++; else if (pts === 1) win++; else miss++;
   }
-  return { total, exact, diff, win };
+  return { total, exact, diff, win, miss };
 }
 
 function renderLeaderboard() {
@@ -370,14 +365,309 @@ function renderLeaderboard() {
     .sort((a, b) => b.total - a.total || b.exact - a.exact || b.diff - a.diff);
   const medals = ['🥇', '🥈', '🥉'];
   const html = ranked.length
-    ? ranked.map((u, i) => `<div class="lb-entry${u.name === currentUser ? ' me' : ''}">
-        <div class="lb-rank">${i < 3 ? medals[i] : i + 1}</div>
-        <div class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}</div>
-        <div class="lb-breakdown">${u.exact} / ${u.diff} / ${u.win}</div>
-        <div class="lb-pts">${u.total}</div>
-      </div>`).join('')
+    ? ranked.map((u, i) => {
+        const preds       = users[u.name]?.predictions || {};
+        const achiev      = calcAchievements(preds, u);
+        const icons       = achiev.filter(a => a.unlocked).map(a => `<span title="${a.name}">${a.icon}</span>`).join('');
+        const iconsHtml   = icons ? `<div class="lb-icons">${icons}</div>` : '';
+        return `<div class="lb-entry${u.name === currentUser ? ' me' : ''}" onclick="openProfile('${u.name.replace(/'/g,"\\'")}', ${i + 1})" style="cursor:pointer">
+          <div class="lb-rank">${i < 3 ? medals[i] : i + 1}</div>
+          <div class="lb-name-wrap">
+            <span class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}</span>
+            ${iconsHtml}
+          </div>
+          <div class="lb-breakdown">${u.exact} / ${u.diff} / ${u.win}</div>
+          <div class="lb-pts">${u.total}</div>
+        </div>`;
+      }).join('')
     : '<div class="empty-state">Ei vielä pelaajia – tallenna veikkauksesi näkyäksesi tässä.</div>';
   document.getElementById('lb-body').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════
+   SAAVUTUKSET
+══════════════════════════════════════════ */
+
+const ACHIEVEMENTS = [
+  // Pistepohjaisia
+  {
+    id: 'first_point',
+    icon: '🏆',
+    name: 'Ensimmäinen piste',
+    desc: 'Ensimmäinen oikea veikkaus',
+    check: ({ stats }) => stats.total >= 1,
+  },
+  {
+    id: 'ten_points',
+    icon: '⭐',
+    name: 'Kympin oppilas',
+    desc: '10 pistettä yhteensä',
+    check: ({ stats }) => stats.total >= 10,
+  },
+  {
+    id: 'twenty_five_points',
+    icon: '🌟',
+    name: 'Mestari',
+    desc: '25 pistettä yhteensä',
+    check: ({ stats }) => stats.total >= 25,
+  },
+  {
+    id: 'fifty_points',
+    icon: '👑',
+    name: 'Legenda',
+    desc: '50 pistettä yhteensä',
+    check: ({ stats }) => stats.total >= 50,
+  },
+  // Tarkkuuspohjaisia
+  {
+    id: 'three_exact',
+    icon: '🎯',
+    name: 'Tarkka-ampuja',
+    desc: '3 tarkkaa tulosta (3p)',
+    check: ({ stats }) => stats.exact >= 3,
+  },
+  {
+    id: 'ten_exact',
+    icon: '💎',
+    name: 'Timantti',
+    desc: '10 tarkkaa tulosta (3p)',
+    check: ({ stats }) => stats.exact >= 10,
+  },
+  {
+    id: 'five_in_a_row',
+    icon: '🔥',
+    name: 'Tulessa',
+    desc: '5 oikeaa veikkausta peräkkäin',
+    check: ({ streak }) => streak >= 5,
+  },
+  {
+    id: 'five_diff',
+    icon: '🧠',
+    name: 'Strategi',
+    desc: 'Oikea maaliero 5 kertaa (2p)',
+    check: ({ stats }) => stats.diff >= 5,
+  },
+  // Erikoisia
+  {
+    id: 'perfect_start',
+    icon: '⚡',
+    name: 'Täydellinen aloitus',
+    desc: 'Oikea veikkaus kisojen avauksesta',
+    check: ({ preds }) => {
+      const opener = MATCHES.find(m => m.id === 'm01');
+      const r = results['m01'];
+      const p = preds['m01'];
+      if (!r || !p || p.h === null) return false;
+      return calcPts(p.h, p.a, r.h, r.a) > 0;
+    },
+  },
+  {
+    id: 'unicorn',
+    icon: '🦄',
+    name: 'Harvinainen helmi',
+    desc: 'Ainoa pelaaja joka veikkasi tietyn ottelun oikein',
+    check: ({ preds }) => {
+      return MATCHES.some(m => {
+        const r = results[m.id]; if (!r) return false;
+        const p = preds[m.id]; if (!p || p.h === null) return false;
+        if (calcPts(p.h, p.a, r.h, r.a) === 0) return false;
+        // Laske kuinka moni muu sai pisteitä tästä ottelusta
+        const others = Object.entries(users).filter(([uname]) => uname !== '').filter(([, udata]) => {
+          const op = udata.predictions?.[m.id];
+          if (!op || op.h === null) return false;
+          return calcPts(op.h, op.a, r.h, r.a) > 0;
+        });
+        return others.length === 1; // vain yksi pelaaja (itse)
+      });
+    },
+  },
+  {
+    id: 'gambler',
+    icon: '🐉',
+    name: 'Uhkapeluri',
+    desc: 'Veikannut yli 3 maalin eroa ja osunut',
+    check: ({ preds }) => {
+      return MATCHES.some(m => {
+        const r = results[m.id]; if (!r) return false;
+        const p = preds[m.id]; if (!p || p.h === null) return false;
+        const predDiff = Math.abs(p.h - p.a);
+        return predDiff > 3 && calcPts(p.h, p.a, r.h, r.a) > 0;
+      });
+    },
+  },
+  {
+    id: 'world_traveller',
+    icon: '🌍',
+    name: 'Maailmanmatkustaja',
+    desc: 'Oikea veikkaus jokaisesta lohkosta A–L',
+    check: ({ preds }) => {
+      const groups = new Set('ABCDEFGHIJKL'.split(''));
+      const hit    = new Set();
+      for (const m of MATCHES) {
+        const r = results[m.id]; if (!r) continue;
+        const p = preds[m.id];   if (!p || p.h === null) continue;
+        if (calcPts(p.h, p.a, r.h, r.a) > 0) hit.add(m.g);
+      }
+      return [...groups].every(g => hit.has(g));
+    },
+  },
+];
+
+function calcStreak(preds) {
+  const sorted = [...MATCHES]
+    .filter(m => results[m.id] && preds[m.id]?.h !== null && preds[m.id]?.a !== null)
+    .sort((a, b) => new Date(a.t) - new Date(b.t));
+  let best = 0, current = 0;
+  for (const m of sorted) {
+    const pts = calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a);
+    if (pts > 0) { current++; best = Math.max(best, current); }
+    else          { current = 0; }
+  }
+  return best;
+}
+
+function calcAchievements(preds, stats) {
+  const streak = calcStreak(preds);
+  return ACHIEVEMENTS.map(a => ({
+    ...a,
+    unlocked: a.check({ preds, stats, streak }),
+  }));
+}
+
+/* ══════════════════════════════════════════
+   PELAAJAN PROFIILI
+══════════════════════════════════════════ */
+
+function openProfile(name, rank) {
+  const data  = users[name];
+  if (!data) return;
+  const preds = data.predictions || {};
+  const stats = calcUser(preds);
+
+  // Pisteet per lohko
+  const groups = {};
+  for (const m of MATCHES) {
+    const r = results[m.id]; if (!r) continue;
+    const p = preds[m.id];   if (!p || p.h === null || p.a === null) continue;
+    const pts = calcPts(p.h, p.a, r.h, r.a);
+    if (!groups[m.g]) groups[m.g] = 0;
+    groups[m.g] += pts;
+  }
+
+  // Paras lohko
+  const bestGroup = Object.entries(groups).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+  // Pelatut ottelut
+  const played = MATCHES
+    .filter(m => results[m.id] && preds[m.id]?.h !== null && preds[m.id]?.a !== null)
+    .sort((a, b) => new Date(a.t) - new Date(b.t));
+
+  const played3 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 3);
+  const played0 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 0);
+
+  const totalPlayed = played.length;
+  const hitRate     = totalPlayed ? Math.round((stats.exact + stats.diff + stats.win) / totalPlayed * 100) : 0;
+
+  // Saavutukset
+  const achievements = calcAchievements(preds, stats);
+  const unlockedCount = achievements.filter(a => a.unlocked).length;
+
+  // Pisterivit
+  function matchRows(list) {
+    if (!list.length) return '<p style="font-size:13px;color:var(--text-muted);padding:0.5rem 0">–</p>';
+    return list.map(m => {
+      const p   = preds[m.id];
+      const r   = results[m.id];
+      const pts = calcPts(p.h, p.a, r.h, r.a);
+      const cls = ['r0','r1','r2','r3'][pts];
+      const lbl = ['0 p','1 p','2 p','3 p'][pts];
+      return `<div class="profile-match-row">
+        <span class="pmr-teams">${flag(m.h)} <strong>${fi(m.h)}</strong> – <strong>${fi(m.a)}</strong> ${flag(m.a)}</span>
+        <span class="pmr-pred">${p.h}–${p.a} / ${r.h}–${r.a}</span>
+        <span class="pmr-badge ${cls}">${lbl}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Lohkoruudukko
+  const allGroups = 'ABCDEFGHIJKL'.split('');
+  const groupGrid = allGroups.map(g => {
+    const pts  = groups[g] ?? null;
+    const best = g === bestGroup;
+    return `<div class="profile-group-tile${best ? ' best' : ''}">
+      <div class="pgt-label">Lohko ${g}</div>
+      <div class="pgt-pts">${pts !== null ? pts : '–'}</div>
+    </div>`;
+  }).join('');
+
+  // Saavutusruudukko
+  const achievementGrid = achievements.map(a => `
+    <div class="achievement${a.unlocked ? ' unlocked' : ''}" title="${a.desc}">
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-name">${a.name}</div>
+      <div class="achievement-desc">${a.desc}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('profile-content').innerHTML = `
+    <div class="profile-header">
+      <div class="profile-avatar">${name[0].toUpperCase()}</div>
+      <div>
+        <div class="profile-name">${name}</div>
+        <div class="profile-rank">Sijoitus ${rank}. · ${totalPlayed} ottelua veikattuna · ${hitRate}% osumia</div>
+      </div>
+      <div class="profile-pts">
+        <div class="profile-pts-num">${stats.total}</div>
+        <div class="profile-pts-lbl">pistettä</div>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <div class="profile-stat-num ps-gold">${stats.exact}</div>
+        <div class="profile-stat-lbl">🥇 Tarkka</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-num ps-silver">${stats.diff}</div>
+        <div class="profile-stat-lbl">🥈 Maaliero</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-num ps-bronze">${stats.win}</div>
+        <div class="profile-stat-lbl">🥉 Voittaja</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-num ps-miss">${stats.miss}</div>
+        <div class="profile-stat-lbl">✗ Ei osunut</div>
+      </div>
+    </div>
+
+    <div class="profile-section-title">Saavutukset · ${unlockedCount} / ${achievements.length} avattu</div>
+    <div class="achievements-grid">${achievementGrid}</div>
+
+    <div class="profile-section-title" style="margin-top:1.5rem">Pisteet per lohko${bestGroup ? ` · Paras: Lohko ${bestGroup}` : ''}</div>
+    <div class="profile-groups">${groupGrid}</div>
+
+    ${played3.length ? `
+      <div class="profile-section-title" style="margin-top:1.5rem">🥇 Tarkat tulokset (${played3.length} kpl)</div>
+      ${matchRows(played3)}
+    ` : ''}
+
+    ${played0.length ? `
+      <div class="profile-section-title" style="margin-top:1.5rem">Ei osunut (${played0.length} kpl)</div>
+      ${matchRows(played0)}
+    ` : ''}
+
+    ${!played.length ? '<p style="color:var(--text-muted);font-size:13px;margin-top:1rem">Ei vielä tuloksia syötetty – profiili täydentyy kisojen edetessä.</p>' : ''}
+  `;
+
+  document.getElementById('profile-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProfile(e) {
+  if (e && e.target !== document.getElementById('profile-overlay')) return;
+  document.getElementById('profile-overlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 /* ══════════════════════════════════════════
@@ -510,13 +800,16 @@ async function init() {
   await loadAllPredictions();
   renderMatches();
   renderLeaderboard();
-  // Päivitä data ja lukitse ottelut automaattisesti minuutin välein
   setInterval(async () => {
     await loadResults();
     await loadAllPredictions();
     renderMatches();
     renderLeaderboard();
   }, 60_000);
+  // Sulje profiili Escape-näppäimellä
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeProfile();
+  });
 }
 
 init();

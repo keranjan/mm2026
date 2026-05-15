@@ -4,24 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MM-kisat 2026 – Tulosveikkaus</title>
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Antonio:wght@700&display=swap" rel="stylesheet" />
-
-  <!-- Tyylitiedosto -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════
-     HEADER
-═══════════════════════════════════════ -->
 <header>
   <div class="header-inner">
     <div class="logo-mark">
-      <svg class="logo-trophy" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg class="logo-trophy" viewBox="0 0 80 100" fill="none">
         <defs>
           <linearGradient id="trophyGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"   stop-color="#f0cc60"/>
@@ -30,7 +23,7 @@
           </linearGradient>
         </defs>
         <path d="M24 8 H56 L62 28 Q62 52 40 62 Q18 52 18 28 Z" fill="url(#trophyGrad)"/>
-        <path d="M18 18 Q4 18 4 32 Q4 44 18 46"  stroke="#c9a227" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M18 18 Q4 18 4 32 Q4 44 18 46"   stroke="#c9a227" stroke-width="4" fill="none" stroke-linecap="round"/>
         <path d="M62 18 Q76 18 76 32 Q76 44 62 46" stroke="#c9a227" stroke-width="4" fill="none" stroke-linecap="round"/>
         <rect x="34" y="62" width="12" height="16" fill="url(#trophyGrad)" rx="2"/>
         <rect x="22" y="78" width="36" height="8"  fill="url(#trophyGrad)" rx="3"/>
@@ -40,7 +33,7 @@
       <div class="logo-text">
         <span class="logo-top">FIFA World Cup</span>
         <span class="logo-main">2026 Tulosveikkaus</span>
-        <span class="logo-sub">WE ARE 26</span>
+        <span class="logo-sub">#WeAre26</span>
       </div>
     </div>
     <nav>
@@ -51,9 +44,6 @@
   </div>
 </header>
 
-<!-- ═══════════════════════════════════════
-     SISÄLTÖ
-═══════════════════════════════════════ -->
 <main>
 
   <!-- Veikkaukseni -->
@@ -67,7 +57,7 @@
     <div class="name-bar">
       <div style="flex:1">
         <label for="username">Nimesi (näkyy tulostaulukossa)</label>
-        <input type="text" id="username" placeholder="Kirjoita nimesi…" maxlength="32" />
+        <input type="text" id="username" placeholder="Kirjoita nimesi…" maxlength="20" />
       </div>
       <button class="btn" onclick="savePredictions()">Tallenna veikkaukset</button>
     </div>
@@ -91,6 +81,14 @@
         <div style="text-align:right">Pisteet</div>
       </div>
       <div id="lb-body"></div>
+    </div>
+  </div>
+
+  <!-- Pelaajan profiili -modaali -->
+  <div id="profile-overlay" onclick="closeProfile(event)">
+    <div class="profile-modal" id="profile-modal">
+      <button class="profile-close" onclick="closeProfile()">✕</button>
+      <div id="profile-content"></div>
     </div>
   </div>
 
@@ -118,11 +116,7 @@
 
 </main>
 
-<!-- Toast-ilmoitus -->
 <div id="toast"></div>
-
-<!-- JavaScript -->
 <script src="app.js"></script>
-
 </body>
 </html>

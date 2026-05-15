@@ -7,14 +7,18 @@
   --gold:        #c9a227;
   --gold-light:  #ddb83a;
   --gold-bright: #f0cc60;
-  --bg:          #0d0d0d;
-  --bg-mid:      #111111;
-  --bg-card:     #181818;
-  --bg-input:    #141414;
-  --text:        #e8e8e8;
-  --text-muted:  #666666;
+  --green:       #2e7d4f;
+  --green-light: #3a9e63;
+  --green-bright:#4dbf78;
+  --bg:          #161e18;
+  --bg-mid:      #1b261e;
+  --bg-card:     #1f2e22;
+  --bg-input:    #192019;
+  --text:        #dde8df;
+  --text-muted:  #6a8570;
   --border:      rgba(255,255,255,0.07);
-  --border-gold: rgba(201,162,39,0.32);
+  --border-green: rgba(46,125,79,0.4);
+  --border-gold: rgba(201,162,39,0.35);
   --radius:      10px;
 }
 
@@ -32,8 +36,8 @@ body {
 
 /* ── Header ── */
 header {
-  background: #0a0a0a;
-  border-bottom: 1px solid var(--border-gold);
+  background: #131a15;
+  border-bottom: 1px solid var(--border-green);
   padding: 0 1rem;
   position: sticky;
   top: 0;
@@ -51,25 +55,18 @@ header {
 .logo-trophy { width: 36px; height: 36px; }
 .logo-text   { display: flex; flex-direction: column; line-height: 1; }
 .logo-top  { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 0.18em; color: var(--text-muted); text-transform: uppercase; }
-.logo-main { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.06em; color: var(--gold-light); line-height: 1; }
+.logo-main { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.06em; color: var(--green-bright); line-height: 1; }
 .logo-sub  { font-size: 10px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-top: 1px; }
 
 nav { display: flex; gap: 2px; margin-left: auto; }
 .nav-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 7px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
+  background: none; border: none; color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  padding: 7px 12px; border-radius: 6px; cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
 }
 .nav-btn:hover  { color: var(--text); background: rgba(255,255,255,0.05); }
-.nav-btn.active { color: var(--gold-light); background: rgba(201,162,39,0.1); }
+.nav-btn.active { color: var(--green-bright); background: rgba(46,125,79,0.15); }
 
 /* ── Layout ── */
 main { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 5rem; }
@@ -86,105 +83,65 @@ main { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 5rem; }
 
 /* ── Nimipalkki ── */
 .name-bar {
-  background: var(--bg-card);
-  border: 1px solid var(--border-gold);
-  border-radius: var(--radius);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  background: var(--bg-card); border: 1px solid var(--border-green);
+  border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+  display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
 }
 .name-bar label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
 .name-bar > div { flex: 1; min-width: 160px; }
 
 /* ── Kentät ── */
-input[type="text"],
-input[type="password"] {
-  background: var(--bg-input);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 7px;
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  padding: 10px 12px;
-  outline: none;
-  transition: border-color 0.15s;
-  width: 100%;
+input[type="text"], input[type="password"] {
+  background: var(--bg-input); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 15px; padding: 10px 12px; outline: none;
+  transition: border-color 0.15s; width: 100%;
 }
-input:focus    { border-color: var(--gold); }
+input:focus    { border-color: var(--green-light); }
 input:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ── Napit ── */
 .btn {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
-  color: #0a0a0a;
-  border: none;
-  border-radius: 7px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-  white-space: nowrap;
-  min-height: 44px;
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-bright) 100%);
+  color: #fff; border: none; border-radius: 7px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+  padding: 10px 20px; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap; min-height: 44px;
 }
 .btn:hover  { opacity: 0.88; }
 .btn:active { transform: scale(0.97); }
-
 .btn-ghost {
-  background: none;
-  border: 1px solid rgba(255,255,255,0.12);
-  color: var(--text-muted);
-  border-radius: 7px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  padding: 9px 16px;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 44px;
+  background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--text-muted);
+  border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  padding: 9px 16px; cursor: pointer; transition: all 0.15s; min-height: 44px;
 }
 .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
 
 /* ── Edistymispalkki ── */
 .progress-info  { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
 .progress-track { background: rgba(255,255,255,0.07); border-radius: 100px; height: 4px; margin-bottom: 1.5rem; }
-.progress-fill  { height: 4px; border-radius: 100px; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); transition: width 0.3s; }
+.progress-fill  { height: 4px; border-radius: 100px; background: linear-gradient(90deg, var(--green), var(--green-bright)); transition: width 0.3s; }
 
 /* ── Päivämäärä-otsikko ── */
 .date-label {
-  font-family: 'Antonio', 'Bebas Neue', sans-serif;
-  font-size: 13px;
-  color: var(--gold);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 1.75rem 0 0.65rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 13px;
+  color: var(--green-bright); text-transform: uppercase; letter-spacing: 0.1em;
+  margin: 1.75rem 0 0.65rem; display: flex; align-items: center; gap: 10px;
 }
-.date-label::after { content: ''; flex: 1; height: 1px; background: var(--border-gold); }
+.date-label::after { content: ''; flex: 1; height: 1px; background: var(--border-green); }
 
 /* ── Ottelukortti ── */
 .match-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.8rem 1rem;
-  margin-bottom: 7px;
-  transition: border-color 0.2s;
-  position: relative;
-  overflow: hidden;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 7px;
+  transition: border-color 0.2s; position: relative; overflow: hidden;
 }
 .match-card.locked { opacity: 0.55; }
-.match-card.pts-3 { border-color: rgba(212,170,50,0.5); border-left: 3px solid #c9a020; border-radius: 0 var(--radius) var(--radius) 0; }
+.match-card.pts-3 { border-color: rgba(212,170,50,0.5);  border-left: 3px solid #c9a020; border-radius: 0 var(--radius) var(--radius) 0; }
 .match-card.pts-2 { border-color: rgba(180,188,196,0.4); border-left: 3px solid #9aaab4; border-radius: 0 var(--radius) var(--radius) 0; }
 .match-card.pts-1 { border-color: rgba(176,128,80,0.35); border-left: 3px solid #a07040; border-radius: 0 var(--radius) var(--radius) 0; }
-.match-card.pts-0 { border-color: rgba(255,255,255,0.1); border-left: 3px solid rgba(255,255,255,0.15); border-radius: 0 var(--radius) var(--radius) 0; }
+.match-card.pts-0 { border-color: rgba(255,255,255,0.09); border-left: 3px solid rgba(255,255,255,0.14); border-radius: 0 var(--radius) var(--radius) 0; }
 
-/* Hohtava pyyhkäisy kultaisille/hopea/pronssi-korteille */
 @keyframes cardShine {
   0%   { transform: translateX(-130%) skewX(-20deg); }
   100% { transform: translateX(230%)  skewX(-20deg); }
@@ -192,14 +149,10 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .match-card.pts-3::after,
 .match-card.pts-2::after,
 .match-card.pts-1::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  width: 40%;
-  animation: cardShine 2.4s ease-in-out infinite;
-  pointer-events: none;
+  content: ''; position: absolute; inset: 0; width: 40%;
+  animation: cardShine 2.4s ease-in-out infinite; pointer-events: none;
 }
-.match-card.pts-3::after { background: linear-gradient(90deg, transparent, rgba(255,215,80,0.1),  transparent); animation-delay: 0s; }
+.match-card.pts-3::after { background: linear-gradient(90deg, transparent, rgba(255,215,80,0.1),   transparent); animation-delay: 0s;   }
 .match-card.pts-2::after { background: linear-gradient(90deg, transparent, rgba(200,218,228,0.09), transparent); animation-delay: 0.4s; }
 .match-card.pts-1::after { background: linear-gradient(90deg, transparent, rgba(200,155,100,0.09), transparent); animation-delay: 0.8s; }
 
@@ -209,48 +162,29 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .flag      { font-size: 20px; line-height: 1; flex-shrink: 0; }
 .team-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
 
-/* ── Tulosaskelmat (+ / −) ── */
+/* ── Tulosaskelmat ── */
 .stepper { display: flex; align-items: center; flex-shrink: 0; }
 .step-btn {
-  width: 34px;
-  height: 34px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.03);
-  color: var(--text-muted);
-  font-size: 18px;
-  line-height: 1;
-  border-radius: 7px;
-  cursor: pointer;
+  width: 34px; height: 34px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03); color: var(--text-muted); font-size: 18px;
+  line-height: 1; border-radius: 7px; cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  touch-action: manipulation;
-  user-select: none;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; touch-action: manipulation; user-select: none;
 }
-.step-btn:hover    { background: rgba(201,162,39,0.12); color: var(--gold-light); border-color: var(--border-gold); }
-.step-btn:active   { background: rgba(201,162,39,0.22); transform: scale(0.93); }
+.step-btn:hover    { background: rgba(46,125,79,0.18); color: var(--green-bright); border-color: var(--border-green); }
+.step-btn:active   { background: rgba(46,125,79,0.3); transform: scale(0.93); }
 .step-btn:disabled { opacity: 0.2; cursor: not-allowed; }
-
 .score-display {
-  width: 38px;
-  text-align: center;
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--text);
-  background: var(--bg-input);
+  width: 38px; text-align: center; font-size: 17px; font-weight: 500;
+  color: var(--text); background: var(--bg-input);
   border-top: 1px solid rgba(255,255,255,0.09);
   border-bottom: 1px solid rgba(255,255,255,0.09);
-  border-left: none;
-  border-right: none;
-  padding: 5px 0;
-  line-height: 1.6;
+  border-left: none; border-right: none; padding: 5px 0; line-height: 1.6;
 }
 .score-display.empty { color: var(--text-muted); font-size: 14px; }
 .score-sep { font-size: 15px; font-weight: 300; color: var(--text-muted); padding: 0 5px; flex-shrink: 0; }
 
-/* ── Ottelun metatiedot ja tulospalkki ── */
 .match-meta  { font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; justify-content: space-between; align-items: center; }
 .result-wrap { text-align: center; margin-top: 6px; }
 .result-line { font-size: 11px; padding: 3px 10px; border-radius: 100px; display: inline-block; position: relative; overflow: hidden; }
@@ -260,48 +194,35 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   100% { transform: translateX(260%)  skewX(-20deg); }
 }
 .r3::after, .r2::after, .r1::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  width: 45%;
-  pointer-events: none;
-  animation: badgeShine 2.2s ease-in-out infinite;
+  content: ''; position: absolute; inset: 0; width: 45%;
+  pointer-events: none; animation: badgeShine 2.2s ease-in-out infinite;
 }
 .r3 { background: rgba(212,170,50,0.18); color: #d4a832; }
-.r3::after { background: linear-gradient(90deg, transparent, rgba(255,220,80,0.35),  transparent); animation-delay: 0s; }
+.r3::after { background: linear-gradient(90deg, transparent, rgba(255,220,80,0.35),  transparent); animation-delay: 0s;   }
 .r2 { background: rgba(180,188,196,0.14); color: #a8b8c4; }
 .r2::after { background: linear-gradient(90deg, transparent, rgba(210,228,238,0.32), transparent); animation-delay: 0.5s; }
 .r1 { background: rgba(176,128,80,0.14); color: #c09060; }
-.r1::after { background: linear-gradient(90deg, transparent, rgba(220,170,110,0.28), transparent); animation-delay: 1s; }
+.r1::after { background: linear-gradient(90deg, transparent, rgba(220,170,110,0.28), transparent); animation-delay: 1s;   }
 .r0 { background: rgba(255,255,255,0.05); color: var(--text-muted); }
 .rn { background: rgba(255,255,255,0.05); color: var(--text-muted); }
 
 /* ── Tulostaulukko ── */
-.lb-table { background: var(--bg-card); border: 1px solid var(--border-gold); border-radius: var(--radius); overflow: hidden; }
+.lb-table { background: var(--bg-card); border: 1px solid var(--border-green); border-radius: var(--radius); overflow: hidden; }
 .lb-head {
-  display: grid;
-  grid-template-columns: 32px 1fr 80px 60px;
-  gap: 8px;
-  padding: 0.55rem 1rem;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted);
-  background: rgba(201,162,39,0.07);
-  border-bottom: 1px solid var(--border-gold);
+  display: grid; grid-template-columns: 32px 1fr 80px 60px; gap: 8px;
+  padding: 0.55rem 1rem; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-muted); background: rgba(46,125,79,0.12); border-bottom: 1px solid var(--border-green);
 }
 .lb-entry {
-  display: grid;
-  grid-template-columns: 32px 1fr 80px 60px;
-  gap: 8px;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
-  align-items: center;
+  display: grid; grid-template-columns: 32px 1fr 80px 60px; gap: 8px;
+  padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); align-items: center;
 }
 .lb-entry:last-child { border-bottom: none; }
-.lb-entry.me         { background: rgba(201,162,39,0.06); }
+.lb-entry.me         { background: rgba(46,125,79,0.1); }
 .lb-rank      { font-size: 13px; color: var(--text-muted); text-align: center; }
+.lb-name-wrap { min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
 .lb-name      { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-icons     { font-size: 13px; line-height: 1; display: flex; flex-wrap: wrap; gap: 2px; }
 .lb-breakdown { font-size: 12px; color: var(--text-muted); }
 .lb-pts       { font-size: 16px; font-weight: 500; color: var(--gold-light); text-align: right; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
 .empty-state  { padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 14px; }
@@ -318,26 +239,194 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .admin-team { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 5px; min-width: 0; }
 .admin-team.right { flex-direction: row-reverse; }
 
-/* ── Toast-ilmoitus ── */
-#toast {
+/* ── Saavutukset ── */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 0.5rem;
+}
+.achievement {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.6rem;
+  text-align: center;
+  background: rgba(255,255,255,0.02);
+  filter: grayscale(1);
+  opacity: 0.35;
+  transition: all 0.2s;
+}
+.achievement.unlocked {
+  filter: grayscale(0);
+  opacity: 1;
+  border-color: var(--border-green);
+  background: rgba(46,125,79,0.1);
+}
+.achievement-icon { font-size: 26px; line-height: 1; margin-bottom: 5px; }
+.achievement-name { font-size: 11px; font-weight: 500; color: var(--text); line-height: 1.3; margin-bottom: 3px; }
+.achievement-desc { font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+.achievement.unlocked .achievement-name { color: var(--green-bright); }
+
+/* ── Pelaajan profiili -modaali ── */
+#profile-overlay {
+  display: none;
   position: fixed;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: #111;
-  border: 1px solid var(--border-gold);
-  color: var(--text);
-  padding: 10px 20px;
-  border-radius: 100px;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+#profile-overlay.open { display: flex; }
+
+.profile-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-green);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 1.75rem 1.5rem 1.5rem;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.profile-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 18px; cursor: pointer; line-height: 1;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: color 0.15s, background 0.15s;
+}
+.profile-close:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+
+.profile-header {
+  display: flex; align-items: flex-start; gap: 1rem;
+  margin-bottom: 1.5rem; padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-green);
+}
+.profile-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--green-bright));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #fff;
+  flex-shrink: 0;
+}
+.profile-name { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.05em; color: var(--green-bright); }
+.profile-rank { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.profile-pts  { margin-left: auto; text-align: right; }
+.profile-pts-num { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--gold-light); line-height: 1; letter-spacing: 1px; }
+.profile-pts-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* Tilastoruudukko */
+.profile-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin-bottom: 1.5rem;
+}
+.profile-stat {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.75rem 0.5rem; text-align: center;
+}
+.profile-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; }
+.profile-stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px; }
+.ps-gold   { color: #d4a832; }
+.ps-silver { color: #a8b8c4; }
+.ps-bronze { color: #c09060; }
+.ps-miss   { color: var(--text-muted); }
+
+/* Parhaiten pärjännyt lohko */
+.profile-section-title {
+  font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.09em; margin-bottom: 0.65rem; margin-top: 1.25rem;
+}
+
+/* Lohkopisteet */
+.profile-groups { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 0.5rem; }
+.profile-group-tile {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.6rem 0.4rem; text-align: center;
+}
+.profile-group-tile.best { border-color: var(--border-green); background: rgba(46,125,79,0.12); }
+.pgt-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+.pgt-pts   { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--green-bright); line-height: 1; }
+
+/* Ottelulistat profiilissa */
+.profile-match-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0.55rem 0; border-bottom: 1px solid var(--border);
   font-size: 13px;
-  font-weight: 500;
-  opacity: 0;
-  transition: opacity 0.25s, transform 0.25s;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 999;
+}
+.profile-match-row:last-child { border-bottom: none; }
+.pmr-teams { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); }
+.pmr-teams strong { color: var(--text); }
+.pmr-pred  { font-size: 12px; color: var(--text-muted); width: 44px; text-align: center; flex-shrink: 0; }
+.pmr-badge { font-size: 11px; padding: 2px 8px; border-radius: 100px; flex-shrink: 0; }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-mid); border: 1px solid var(--border-green); color: var(--text);
+  padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none; white-space: nowrap; z-index: 999;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Saavutukset ── */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+.achievement {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 0.6rem;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+.achievement.unlocked {
+  background: rgba(201,162,39,0.07);
+  border-color: rgba(201,162,39,0.4);
+}
+.achievement-icon {
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 5px;
+  filter: grayscale(1) opacity(0.3);
+}
+.achievement.unlocked .achievement-icon {
+  filter: none;
+}
+.achievement-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+.achievement.unlocked .achievement-name {
+  color: var(--gold-light);
+}
+.achievement-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  opacity: 0.6;
+  line-height: 1.3;
+}
+.achievement.unlocked .achievement-desc {
+  opacity: 0.8;
+}
 
 /* ── Mobiili ── */
 @media (max-width: 480px) {
@@ -351,4 +440,5 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   .lb-breakdown { font-size: 11px; }
   .step-btn      { width: 36px; height: 36px; font-size: 20px; }
   .score-display { width: 36px; font-size: 16px; }
+  .name-bar { flex-direction: column; align-items: stretch; }
 }
