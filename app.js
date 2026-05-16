@@ -465,16 +465,13 @@ function renderLeaderboard() {
   const medals = ['🥇', '🥈', '🥉'];
   const html = ranked.length
     ? ranked.map((u, i) => {
-        const preds       = users[u.name]?.predictions || {};
-        const achiev      = calcAchievements(preds, u);
-        const icons       = achiev.filter(a => a.unlocked).map(a => `<span title="${a.name}">${a.icon}</span>`).join('');
-        const iconsHtml   = icons ? `<div class="lb-icons">${icons}</div>` : '';
+        const preds     = users[u.name]?.predictions || {};
+        const achiev    = calcAchievements(preds, u);
+        const icons     = achiev.filter(a => a.unlocked).map(a => `<span title="${a.name}">${a.icon}</span>`).join('');
         return `<div class="lb-entry${u.name === currentUser ? ' me' : ''}" onclick="openProfile('${u.name.replace(/'/g,"\\'")}', ${i + 1})" style="cursor:pointer">
           <div class="lb-rank">${i < 3 ? medals[i] : i + 1}</div>
-          <div class="lb-name-wrap">
-            <span class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}</span>
-            ${iconsHtml}
-          </div>
+          <div class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}</div>
+          <div class="lb-icons">${icons}</div>
           <div class="lb-breakdown">${u.exact} / ${u.diff} / ${u.win}</div>
           <div class="lb-pts">${u.total}</div>
         </div>`;
