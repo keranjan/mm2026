@@ -49,14 +49,14 @@ header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  height: 62px;
+  height: 84px;
 }
-.logo-mark   { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.logo-trophy { width: 36px; height: 36px; }
+.logo-mark   { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.logo-trophy { width: 58px; height: 58px; border-radius: 8px; }
 .logo-text   { display: flex; flex-direction: column; line-height: 1; }
-.logo-top  { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 0.18em; color: var(--text-muted); text-transform: uppercase; }
-.logo-main { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.06em; color: var(--green-bright); line-height: 1; }
-.logo-sub  { font-size: 10px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-top: 1px; }
+.logo-top  { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.18em; color: var(--text-muted); text-transform: uppercase; }
+.logo-main { font-family: 'Antonio', 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.06em; color: var(--green-bright); line-height: 1; }
+.logo-sub  { font-size: 12px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
 
 nav { display: flex; gap: 2px; margin-left: auto; }
 .nav-btn {
@@ -439,8 +439,8 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 /* ── Mobiili ── */
 @media (max-width: 480px) {
   main { padding: 1rem 0.75rem 5rem; }
-  .logo-main { font-size: 17px; }
-  .logo-top, .logo-sub { display: none; }
+  .logo-main { font-size: 22px; }
+  .logo-top, .logo-sub { font-size: 11px; }
   .nav-btn   { font-size: 12px; padding: 7px 9px; }
   .team-name { font-size: 12px; }
   .flag      { font-size: 18px; }
