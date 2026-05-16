@@ -24,6 +24,7 @@
     <nav>
       <button class="nav-btn active" onclick="showTab('picks',this)">Veikkaukseni</button>
       <button class="nav-btn"        onclick="showTab('leaderboard',this)">Tulostaulukko</button>
+      <button class="nav-btn"        onclick="showTab('chart',this)">Kaavio</button>
       <button class="nav-btn"        onclick="showTab('admin',this)">Admin</button>
     </nav>
   </div>
@@ -44,7 +45,7 @@
         <label for="username">Nimesi (näkyy tulostaulukossa)</label>
         <input type="text" id="username" placeholder="Etunimi Sukunimi #10" maxlength="20" />
       </div>
-      <button class="btn" onclick="savePredictions()">Tallenna veikkaukset</button>
+      <button id="save-btn" class="btn" onclick="savePredictions()">Tallenna veikkaukset</button>
     </div>
     <div class="progress-info">
       <span id="progress-label">Ladataan…</span>
@@ -78,6 +79,17 @@
     </div>
   </div>
 
+  <!-- Pistekehitys -->
+  <div id="tab-chart" class="section">
+    <div class="chart-wrap">
+      <h2 class="chart-title">Pistekehitys turnauksen aikana</h2>
+      <p class="chart-sub" id="chart-sub">Kuvaajassa näkyy pelaajien kumulatiiviset pisteet peli peliltä.</p>
+      <div class="chart-canvas-wrap">
+        <canvas id="pts-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin -->
   <div id="tab-admin" class="section">
     <div id="admin-gate">
@@ -103,6 +115,7 @@
 </main>
 
 <div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -385,17 +385,20 @@ function refreshCard(id) {
 
 async function savePredictions() {
   const name = document.getElementById('username').value.trim();
-  if (!name) { toast('Kirjoita nimesi ensin'); return; }
+  if (!name) { toast('Kirjoita nimesi ensin', 'error'); return; }
   const open = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
-  if (!open.some(m => predDone(m.id))) { toast('Syötä vähintään yksi tulos ensin'); return; }
+  if (!open.some(m => predDone(m.id))) { toast('Syötä vähintään yksi tulos ensin', 'error'); return; }
 
-  toast('Tallennetaan…');
+  const btn = document.getElementById('save-btn');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Tallennetaan…';
+  btn.style.opacity = '0.7';
 
   const rows = Object.entries(predictions)
     .filter(([, v]) => v.h !== null && v.a !== null)
     .map(([match_id, v]) => ({ username: name, match_id, home_goals: v.h, away_goals: v.a }));
 
-  // Hae mitkä rivit jo olemassa tietokannassa
   const existingRes = await api(`predictions?username=eq.${encodeURIComponent(name)}&select=match_id`);
   const existingIds = new Set();
   if (existingRes.ok) {
@@ -406,7 +409,8 @@ async function savePredictions() {
   const toInsert = rows.filter(r => !existingIds.has(r.match_id));
   const toUpdate = rows.filter(r =>  existingIds.has(r.match_id));
 
-  // Lisää uudet
+  let failed = false;
+
   if (toInsert.length > 0) {
     const res = await api('predictions', {
       method: 'POST',
@@ -415,31 +419,37 @@ async function savePredictions() {
     if (!res.ok) {
       const err = await res.text().catch(() => '');
       console.error('Insert-virhe:', res.status, err);
-      toast('Virhe tallennuksessa :(');
-      return;
+      failed = true;
     }
   }
 
-  // Päivitä olemassa olevat yksi kerrallaan
   for (const row of toUpdate) {
     const res = await api(
       `predictions?username=eq.${encodeURIComponent(name)}&match_id=eq.${row.match_id}`,
-      {
-        method: 'PATCH',
-        body:   JSON.stringify({ home_goals: row.home_goals, away_goals: row.away_goals }),
-      }
+      { method: 'PATCH', body: JSON.stringify({ home_goals: row.home_goals, away_goals: row.away_goals }) }
     );
     if (!res.ok) {
       const err = await res.text().catch(() => '');
       console.error('Update-virhe:', row.match_id, res.status, err);
+      failed = true;
     }
+  }
+
+  btn.disabled = false;
+  btn.textContent = origText;
+  btn.style.opacity = '';
+
+  if (failed) {
+    toast('Tallennuksessa tapahtui virhe — yritä uudelleen', 'error');
+    return;
   }
 
   currentUser = name;
   localStorage.setItem('wc26_me', name);
   await loadAllPredictions();
   renderLeaderboard();
-  toast('Veikkaukset tallennettu ✓');
+  const count = rows.length;
+  toast(`${count} veikkausta tallennettu!`, 'success');
 }
 
 /* ══════════════════════════════════════════
@@ -897,7 +907,7 @@ async function stepResult(id, side, delta) {
   if (el && m) el.outerHTML = adminCardHtml(m);
   refreshCard(id);
   renderLeaderboard();
-  toast('Tulos tallennettu');
+  toast('Tulos tallennettu', 'success');
 }
 
 function adminCardHtml(m) {
@@ -957,16 +967,126 @@ function showTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (btn) btn.classList.add('active');
   if (tab === 'leaderboard') renderLeaderboard();
+  if (tab === 'chart') renderChart();
   if (tab === 'admin' && adminOpen) renderAdmin();
 }
 
+/* ══════════════════════════════════════════
+   PISTEKEHITYSKAAVIO
+══════════════════════════════════════════ */
+
+let chartInstance = null;
+
+function renderChart() {
+  // Pelatut ottelut kronologisessa järjestyksessä
+  const played = [...MATCHES]
+    .sort((a, b) => new Date(a.t) - new Date(b.t))
+    .filter(m => results[m.id]);
+
+  if (played.length === 0) {
+    document.getElementById('chart-sub').textContent =
+      'Kuvaaja täyttyy kun ensimmäiset tulokset on syötetty.';
+    return;
+  }
+
+  // Väripaletti pelaajakohtaisesti
+  const PALETTE = [
+    '#4ade80','#facc15','#60a5fa','#f97316','#e879f9',
+    '#34d399','#fb7185','#a78bfa','#38bdf8','#fbbf24',
+    '#f472b6','#84cc16','#fb923c','#c084fc','#2dd4bf',
+  ];
+
+  const playerNames = Object.keys(users);
+  const labels = played.map((m, i) => `P${i + 1}`); // "P1", "P2" ...
+
+  const datasets = playerNames.map((name, idx) => {
+    const preds = users[name].predictions;
+    let cumulative = 0;
+    const data = played.map(m => {
+      const p = preds[m.id];
+      const r = results[m.id];
+      const pts = (p && r) ? (calcPts(p.h, p.a, r.h, r.a) ?? 0) : 0;
+      cumulative += pts;
+      return cumulative;
+    });
+    const color = PALETTE[idx % PALETTE.length];
+    return {
+      label: name,
+      data,
+      borderColor: color,
+      backgroundColor: color + '22',
+      borderWidth: name === currentUser ? 3 : 1.5,
+      pointRadius: name === currentUser ? 4 : 2,
+      pointHoverRadius: 6,
+      tension: 0.3,
+      fill: false,
+    };
+  });
+
+  // Pisteet x-akselin tooltippiin
+  const matchLabels = played.map(m => {
+    const t = m.t ? m.t.slice(0, 10) : '';
+    return `${m.h} – ${m.a} (${t})`;
+  });
+
+  document.getElementById('chart-sub').textContent =
+    `${played.length} pelattua ottelua · ${playerNames.length} pelaajaa`;
+
+  const ctx = document.getElementById('pts-chart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#cbd5cb',
+            font: { size: 12 },
+            boxWidth: 14,
+            padding: 14,
+          },
+        },
+        tooltip: {
+          backgroundColor: '#1e2d20',
+          borderColor: '#2e7d4f',
+          borderWidth: 1,
+          titleColor: '#c9a227',
+          bodyColor: '#e0e8e0',
+          callbacks: {
+            title: items => `Ottelu ${items[0].label}: ${matchLabels[items[0].dataIndex]}`,
+            label: item => ` ${item.dataset.label}: ${item.raw} p`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: '#8aab8a', font: { size: 11 } },
+          grid:  { color: '#2a3d2a' },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#8aab8a', font: { size: 11 }, stepSize: 1 },
+          grid:  { color: '#2a3d2a' },
+        },
+      },
+    },
+  });
+}
+
 let toastTimer;
-function toast(msg) {
+function toast(msg, type = 'info') {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  el.innerHTML = `<span style="font-size:15px">${icons[type]}</span> ${msg}`;
+  el.className = `show toast-${type}`;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+  toastTimer = setTimeout(() => el.classList.remove('show'), type === 'error' ? 4000 : 2800);
 }
 
 /* ══════════════════════════════════════════
