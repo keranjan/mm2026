@@ -68,6 +68,50 @@ nav { display: flex; gap: 2px; margin-left: auto; }
 .nav-btn:hover  { color: var(--text); background: rgba(255,255,255,0.05); }
 .nav-btn.active { color: var(--green-bright); background: rgba(46,125,79,0.15); }
 
+/* Hampurilaisnappi — piilotettu oletuksena */
+.hamburger {
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; margin-left: auto; background: none; border: none;
+  cursor: pointer; padding: 8px; border-radius: 6px;
+}
+.hamburger span {
+  display: block; width: 22px; height: 2px;
+  background: var(--text-muted); border-radius: 2px;
+  transition: all 0.25s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobiilivalikko */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background: #131a15;
+  border-top: 1px solid var(--border-green);
+  border-bottom: 1px solid var(--border-green);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+.mobile-menu.open { max-height: 300px; }
+.mobile-nav-btn {
+  background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-muted); font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500; text-align: left;
+  padding: 14px 1.25rem; cursor: pointer; transition: all 0.15s;
+}
+.mobile-nav-btn:last-child { border-bottom: none; }
+.mobile-nav-btn:hover  { color: var(--text); background: rgba(255,255,255,0.04); }
+.mobile-nav-btn.active { color: var(--green-bright); background: rgba(46,125,79,0.12); }
+
+/* Portrait: hampurilaisvalikko näkyviin, nav-palkki piiloon */
+@media (orientation: portrait) and (max-width: 768px) {
+  #main-nav    { display: none; }
+  .hamburger   { display: flex; }
+  .mobile-menu { display: flex; }
+}
+
 /* ── Layout ── */
 main { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 5rem; }
 .section { display: none; }

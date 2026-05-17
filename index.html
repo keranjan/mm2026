@@ -21,12 +21,22 @@
         <span class="logo-sub">#WeAre26</span>
       </div>
     </div>
-    <nav>
+    <nav id="main-nav">
       <button class="nav-btn active" onclick="showTab('picks',this)">Veikkaukseni</button>
       <button class="nav-btn"        onclick="showTab('leaderboard',this)">Tulostaulukko</button>
       <button class="nav-btn"        onclick="showTab('chart',this)">Kaavio</button>
       <button class="nav-btn"        onclick="showTab('admin',this)">Admin</button>
     </nav>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Valikko">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <!-- Mobiilivalikko (portrait) -->
+  <div id="mobile-menu" class="mobile-menu">
+    <button class="mobile-nav-btn active" onclick="showTab('picks',this);closeMenu()">Veikkaukseni</button>
+    <button class="mobile-nav-btn"        onclick="showTab('leaderboard',this);closeMenu()">Tulostaulukko</button>
+    <button class="mobile-nav-btn"        onclick="showTab('chart',this);closeMenu()">Kaavio</button>
+    <button class="mobile-nav-btn"        onclick="showTab('admin',this);closeMenu()">Admin</button>
   </div>
 </header>
 

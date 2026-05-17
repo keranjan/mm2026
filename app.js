@@ -1052,12 +1052,31 @@ function renderAdmin() {
 
 function showTab(tab, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   if (btn) btn.classList.add('active');
+  // Synkronoi molemmat navipalkit
+  const label = btn?.textContent?.trim();
+  if (label) {
+    document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(b => {
+      if (b.textContent.trim() === label) b.classList.add('active');
+    });
+  }
   if (tab === 'leaderboard') renderLeaderboard();
   if (tab === 'chart') renderChart();
   if (tab === 'admin' && adminOpen) renderAdmin();
+}
+
+function toggleMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const btn  = document.getElementById('hamburger');
+  menu.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+function closeMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
 }
 
 /* ══════════════════════════════════════════
@@ -1229,6 +1248,7 @@ init();
     const nextTab = TABS[nextIdx];
     const btn = document.querySelector(`.nav-btn[onclick*="'${nextTab}'"]`);
     showTab(nextTab, btn);
+    closeMenu();
     locked = true;
     setTimeout(() => { locked = false; }, 600);
   }, { passive: true });
