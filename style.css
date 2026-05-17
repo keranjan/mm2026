@@ -210,6 +210,8 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .match-meta  { font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; justify-content: space-between; align-items: center; }
 .result-wrap { text-align: center; margin-top: 6px; }
 .result-line { font-size: 11px; padding: 3px 10px; border-radius: 100px; display: inline-block; position: relative; overflow: hidden; }
+.match-stats { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
+.match-stats span { font-size: 11px; color: var(--text-muted); letter-spacing: 0.02em; }
 
 @keyframes badgeShine {
   0%   { transform: translateX(-160%) skewX(-20deg); }
@@ -493,4 +495,38 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   padding: 1.25rem;
   position: relative;
   min-height: 320px;
+}
+
+/* ── Kuuma putki -banneri ── */
+.streak-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2a1a00, #3d2800);
+  border: 1px solid #c97c20;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 1rem;
+  font-size: 14px;
+  color: #f5c060;
+  animation: streakPulse 2.5s ease-in-out infinite;
+}
+@keyframes streakPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,124,32,0); }
+  50%       { box-shadow: 0 0 12px 2px rgba(201,124,32,0.35); }
+}
+
+/* ── Viikon veikkaaja -badge ── */
+.badge-weekly {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #f5c060;
+  background: rgba(201,124,32,0.18);
+  border: 1px solid rgba(201,124,32,0.45);
+  border-radius: 100px;
+  padding: 1px 7px;
+  margin-left: 5px;
+  vertical-align: middle;
 }

@@ -295,15 +295,33 @@ function updateProgress() {
   document.getElementById('progress-pct').textContent   = pct + '%';
 }
 
+function matchStats(id) {
+  const r = results[id];
+  if (!r) return '';
+  const all = Object.values(users)
+    .map(u => u.predictions[id])
+    .filter(p => p && p.h !== null && p.a !== null);
+  const n = all.length;
+  if (n === 0) return '';
+  const w1  = all.filter(p => winner(p.h, p.a) === winner(r.h, r.a)).length;
+  const gd  = all.filter(p => winner(p.h, p.a) === winner(r.h, r.a) && (p.h - p.a) === (r.h - r.a)).length;
+  const ex  = all.filter(p => p.h === r.h && p.a === r.a).length;
+  return `<div class="match-stats">
+    <span title="Oikea voittaja">🏆 ${w1}/${n}</span>
+    <span title="Oikea maaliero">📐 ${gd}/${n}</span>
+    <span title="Tarkka tulos">🎯 ${ex}/${n}</span>
+  </div>`;
+}
+
 function resultBadge(id) {
   const p = getPred(id), r = results[id];
   if (!r) return '';
   const pts   = calcPts(p.h, p.a, r.h, r.a);
   const score = `${r.h}–${r.a}`;
-  if (pts === null) return `<div class="result-wrap"><span class="result-line rn">Tulos: ${score} · ei veikkausta</span></div>`;
-  const cls = ['r0', 'r1', 'r2', 'r3'][pts];
-  const lbl = ['Ei osunut · 0 p', 'Oikea voittaja +1 p', 'Oikea maaliero +2 p', 'Tarkka tulos! +3 p'][pts];
-  return `<div class="result-wrap"><span class="result-line ${cls}">Tulos: ${score} · ${lbl}</span></div>`;
+  const badge = pts === null
+    ? `<span class="result-line rn">Tulos: ${score} · ei veikkausta</span>`
+    : `<span class="result-line ${ ['r0','r1','r2','r3'][pts] }">Tulos: ${score} · ${ ['Ei osunut · 0 p','Oikea voittaja +1 p','Oikea maaliero +2 p','Tarkka tulos! +3 p'][pts] }</span>`;
+  return `<div class="result-wrap">${badge}${matchStats(id)}</div>`;
 }
 
 function cardExtraClass(id) {
@@ -356,6 +374,21 @@ function matchCardHtml(m) {
 }
 
 function renderMatches() {
+  // Kuuma putki -banneri
+  const streakEl = document.getElementById('streak-banner');
+  if (streakEl && currentUser && users[currentUser]) {
+    const streak = calcCurrentStreak(users[currentUser].predictions || {});
+    if (streak >= 3) {
+      const fire = streak >= 7 ? '🔥🔥🔥' : streak >= 5 ? '🔥🔥' : '🔥';
+      streakEl.innerHTML = `${fire} <strong>${streak} oikein peräkkäin</strong> — kuuma putki käynnissä!`;
+      streakEl.style.display = 'flex';
+    } else {
+      streakEl.style.display = 'none';
+    }
+  } else if (streakEl) {
+    streakEl.style.display = 'none';
+  }
+
   const sorted = [...MATCHES].sort((a, b) => new Date(a.t) - new Date(b.t));
   let html = '', lastKey = '';
   for (const m of sorted) {
@@ -399,6 +432,29 @@ async function savePredictions() {
     .filter(([, v]) => v.h !== null && v.a !== null)
     .map(([match_id, v]) => ({ username: name, match_id, home_goals: v.h, away_goals: v.a }));
 
+  // Suodata pois ottelut jotka ovat ehtineet lukittua sivun avauksen jälkeen
+  const nowLocked = rows.filter(r => {
+    const m = MATCHES.find(m => m.id === r.match_id);
+    return m && (Date.now() >= new Date(m.t).getTime() || results[m.id]);
+  });
+  const safeRows = rows.filter(r => {
+    const m = MATCHES.find(m => m.id === r.match_id);
+    return m && Date.now() < new Date(m.t).getTime() && !results[m.id] && !ROUND_NAMES[m.g];
+  });
+
+  if (safeRows.length === 0) {
+    btn.disabled = false;
+    btn.textContent = origText;
+    btn.style.opacity = '';
+    toast('Kaikki veikkaukset ovat jo lukittuja — ei tallennettavaa', 'error');
+    return;
+  }
+
+  if (nowLocked.length > 0) {
+    toast(`${nowLocked.length} ottelu on jo alkanut — niitä ei tallenneta`, 'info');
+    await new Promise(r => setTimeout(r, 1200)); // pieni tauko ennen jatkoa
+  }
+
   const existingRes = await api(`predictions?username=eq.${encodeURIComponent(name)}&select=match_id`);
   const existingIds = new Set();
   if (existingRes.ok) {
@@ -406,8 +462,8 @@ async function savePredictions() {
     existing.forEach(r => existingIds.add(r.match_id));
   }
 
-  const toInsert = rows.filter(r => !existingIds.has(r.match_id));
-  const toUpdate = rows.filter(r =>  existingIds.has(r.match_id));
+  const toInsert = safeRows.filter(r => !existingIds.has(r.match_id));
+  const toUpdate = safeRows.filter(r =>  existingIds.has(r.match_id));
 
   let failed = false;
 
@@ -448,7 +504,7 @@ async function savePredictions() {
   localStorage.setItem('wc26_me', name);
   await loadAllPredictions();
   renderLeaderboard();
-  const count = rows.length;
+  const count = safeRows.length;
   toast(`${count} veikkausta tallennettu!`, 'success');
 }
 
@@ -470,17 +526,23 @@ function calcUser(preds) {
 
 function renderLeaderboard() {
   const ranked = Object.entries(users)
-    .map(([name, data]) => ({ name, ...calcUser(data.predictions || {}) }))
+    .map(([name, data]) => ({ name, ...calcUser(data.predictions || {}), weekly: calcWeeklyPts(data.predictions || {}) }))
     .sort((a, b) => b.total - a.total || b.exact - a.exact || b.diff - a.diff);
+
+  // Viikon veikkaaja — kaikki jotka yltävät viim. 7 pv huipputulokseen
+  const topWeekly = Math.max(...ranked.map(u => u.weekly));
+  const weeklyWinners = new Set(topWeekly > 0 ? ranked.filter(u => u.weekly === topWeekly).map(u => u.name) : []);
+
   const medals = ['🥇', '🥈', '🥉'];
   const html = ranked.length
     ? ranked.map((u, i) => {
         const preds     = users[u.name]?.predictions || {};
         const achiev    = calcAchievements(preds, u);
         const icons     = achiev.filter(a => a.unlocked).map(a => `<span title="${a.name}">${a.icon}</span>`).join('');
+        const isWeekly  = weeklyWinners.has(u.name);
         return `<div class="lb-entry${u.name === currentUser ? ' me' : ''}" onclick="openProfile('${u.name.replace(/'/g,"\\'")}', ${i + 1})" style="cursor:pointer">
           <div class="lb-rank">${i < 3 ? medals[i] : i + 1}</div>
-          <div class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}</div>
+          <div class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}${isWeekly ? ' <span class="badge-weekly" title="Viikon veikkaaja — eniten pisteitä viimeisen 7 päivän otteluista">⭐ viikon veikkaaja</span>' : ''}</div>
           <div class="lb-icons">${icons}</div>
           <div class="lb-breakdown">${u.exact} / ${u.diff} / ${u.win}</div>
           <div class="lb-pts">${u.total}</div>
@@ -709,6 +771,33 @@ function calcStreak(preds) {
     else         { current = 0; }
   }
   return best;
+}
+
+function calcCurrentStreak(preds) {
+  const sorted = [...MATCHES]
+    .filter(m => results[m.id] && preds[m.id] && preds[m.id].h !== null && preds[m.id].a !== null)
+    .sort((a, b) => new Date(a.t) - new Date(b.t));
+  let current = 0;
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const m = sorted[i];
+    const p = preds[m.id];
+    const pts = calcPts(p.h, p.a, results[m.id].h, results[m.id].a);
+    if (pts > 0) current++;
+    else break;
+  }
+  return current;
+}
+
+function calcWeeklyPts(preds) {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  let pts = 0;
+  for (const m of MATCHES) {
+    const r = results[m.id]; if (!r) continue;
+    if (new Date(m.t).getTime() < weekAgo) continue;
+    const p = preds[m.id]; if (!p || p.h === null || p.a === null) continue;
+    pts += calcPts(p.h, p.a, r.h, r.a);
+  }
+  return pts;
 }
 
 function calcAchievements(preds, stats) {
@@ -1114,3 +1203,31 @@ async function init() {
 }
 
 init();
+
+/* ══════════════════════════════════════════
+   PYYHKÄISYNAVIGOINTI
+══════════════════════════════════════════ */
+(function () {
+  const TABS = ['picks', 'leaderboard', 'chart', 'admin'];
+  let startX = 0, startY = 0;
+
+  document.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    // Vaadi vaakasuuntainen liike (>50px) ja ettei ole pystysuuntainen scroll
+    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+    const activeTab = document.querySelector('.section.active')?.id?.replace('tab-', '');
+    const idx = TABS.indexOf(activeTab);
+    if (idx === -1) return;
+    const nextIdx = dx < 0 ? idx + 1 : idx - 1;
+    if (nextIdx < 0 || nextIdx >= TABS.length) return;
+    const nextTab = TABS[nextIdx];
+    const btn = document.querySelector(`.nav-btn[onclick*="'${nextTab}'"]`);
+    showTab(nextTab, btn);
+  }, { passive: true });
+})();
