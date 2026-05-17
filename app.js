@@ -1209,7 +1209,7 @@ init();
 ══════════════════════════════════════════ */
 (function () {
   const TABS = ['picks', 'leaderboard', 'chart', 'admin'];
-  let startX = 0, startY = 0;
+  let startX = 0, startY = 0, locked = false;
 
   document.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
@@ -1217,10 +1217,10 @@ init();
   }, { passive: true });
 
   document.addEventListener('touchend', e => {
+    if (locked) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
-    // Vaadi vaakasuuntainen liike (>50px) ja ettei ole pystysuuntainen scroll
-    if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
     const activeTab = document.querySelector('.section.active')?.id?.replace('tab-', '');
     const idx = TABS.indexOf(activeTab);
     if (idx === -1) return;
@@ -1229,5 +1229,7 @@ init();
     const nextTab = TABS[nextIdx];
     const btn = document.querySelector(`.nav-btn[onclick*="'${nextTab}'"]`);
     showTab(nextTab, btn);
+    locked = true;
+    setTimeout(() => { locked = false; }, 600);
   }, { passive: true });
 })();
