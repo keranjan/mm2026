@@ -343,11 +343,17 @@ function matchCardHtml(m) {
   const aEmpty = av === null ? ' empty' : '';
   return `<div class="match-card ${locked ? 'locked' : ''} ${isKnockout(m) ? 'knockout' : ''} ${cardExtraClass(m.id)}" id="mc-${m.id}">
     <div class="match-row">
-      <div class="team-block">
-        <span class="flag">${flag(m.h)}</span>
-        <span class="team-name">${fi(m.h)}</span>
+      <div class="match-teams-row">
+        <div class="team-block">
+          <span class="flag">${flag(m.h)}</span>
+          <span class="team-name">${fi(m.h)}</span>
+        </div>
+        <div class="team-block away">
+          <span class="flag">${flag(m.a)}</span>
+          <span class="team-name">${fi(m.a)}</span>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+      <div class="match-stepper-row">
         <div class="stepper">
           <button class="step-btn" ${dis} onclick="stepPred('${m.id}','h',-1)">−</button>
           <div class="score-display${hEmpty}">${hDisp}</div>
@@ -359,10 +365,6 @@ function matchCardHtml(m) {
           <div class="score-display${aEmpty}">${aDisp}</div>
           <button class="step-btn" ${dis} onclick="stepPred('${m.id}','a',1)">+</button>
         </div>
-      </div>
-      <div class="team-block away">
-        <span class="flag">${flag(m.a)}</span>
-        <span class="team-name">${fi(m.a)}</span>
       </div>
     </div>
     <div class="match-meta">

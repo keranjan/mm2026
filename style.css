@@ -223,8 +223,8 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .match-card.pts-1::after { background: linear-gradient(90deg, transparent, rgba(200,155,100,0.09), transparent); animation-delay: 0.8s; }
 
 .match-row         { display: flex; flex-direction: column; gap: 6px; }
-.match-teams-row   { display: flex; align-items: center; justify-content: space-between; order: 1; }
-.match-stepper-row { display: flex; align-items: center; justify-content: center; gap: 4px; order: 2; }
+.match-teams-row   { display: flex; align-items: center; justify-content: space-between; }
+.match-stepper-row { display: flex; align-items: center; justify-content: center; gap: 4px; }
 .team-block        { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: 45%; }
 .team-block.away   { flex-direction: row-reverse; }
 .flag      { font-size: 20px; line-height: 1; flex-shrink: 0; }
