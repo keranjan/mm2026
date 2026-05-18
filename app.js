@@ -254,11 +254,21 @@ async function loadResults() {
 
 async function loadAllPredictions() {
   try {
-    const res = await api('predictions?select=username,match_id,home_goals,away_goals');
-    if (!res.ok) return;
-    const rows = await res.json();
+    const PAGE = 1000;
+    let offset = 0;
+    let allRows = [];
+    while (true) {
+      const res = await api(
+        `predictions?select=username,match_id,home_goals,away_goals&order=username&limit=${PAGE}&offset=${offset}`
+      );
+      if (!res.ok) break;
+      const rows = await res.json();
+      allRows = allRows.concat(rows);
+      if (rows.length < PAGE) break;
+      offset += PAGE;
+    }
     users = {};
-    rows.forEach(r => {
+    allRows.forEach(r => {
       if (!users[r.username]) users[r.username] = { predictions: {} };
       users[r.username].predictions[r.match_id] = { h: r.home_goals, a: r.away_goals };
     });
