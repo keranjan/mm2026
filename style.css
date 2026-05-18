@@ -229,10 +229,9 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 
 @media (orientation: portrait) and (max-width: 768px) {
   .match-row     { flex-wrap: wrap; }
-  .team-block    { flex: 1 1 40%; min-width: 0; }
-  .team-block.away { justify-content: flex-end; }
+  .team-block    { flex: 1 1 40%; min-width: 0; order: 0; }
+  .team-block.away { justify-content: flex-end; text-align: right; margin-left: auto; }
   .match-stepper { flex: 1 1 100%; justify-content: center; order: 1; }
-  .team-block    { order: 0; }
 }
 .flag      { font-size: 20px; line-height: 1; flex-shrink: 0; }
 .team-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); min-width: 0; }
