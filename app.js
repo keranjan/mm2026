@@ -1084,61 +1084,151 @@ function closeMenu() {
 ══════════════════════════════════════════ */
 
 let chartInstance = null;
+let chartSelectedPlayers = new Set();
+let chartAllPlayers = [];
+
+const CHART_STORAGE_KEY = 'wc26_chart_players';
+
+function saveChartSelection() {
+  localStorage.setItem(CHART_STORAGE_KEY, JSON.stringify([...chartSelectedPlayers]));
+}
+
+function loadChartSelection() {
+  try {
+    const saved = localStorage.getItem(CHART_STORAGE_KEY);
+    return saved ? new Set(JSON.parse(saved)) : null;
+  } catch { return null; }
+} // [{name, total, data}] järjestyksessä
+
+const PALETTE = [
+  '#4ade80','#facc15','#60a5fa','#f97316','#e879f9',
+  '#34d399','#fb7185','#a78bfa','#38bdf8','#fbbf24',
+  '#f472b6','#84cc16','#fb923c','#c084fc','#2dd4bf',
+  '#67e8f9','#fca5a5','#86efac','#fde68a','#c4b5fd',
+];
 
 function renderChart() {
-  // Pelatut ottelut kronologisessa järjestyksessä
   const played = [...MATCHES]
     .sort((a, b) => new Date(a.t) - new Date(b.t))
     .filter(m => results[m.id]);
 
   if (played.length === 0) {
-    document.getElementById('chart-sub').textContent =
-      'Kuvaaja täyttyy kun ensimmäiset tulokset on syötetty.';
+    document.getElementById('chart-sub').textContent = 'Kuvaaja täyttyy kun ensimmäiset tulokset on syötetty.';
+    document.getElementById('chart-player-list').innerHTML = '';
     return;
   }
 
-  // Väripaletti pelaajakohtaisesti
-  const PALETTE = [
-    '#4ade80','#facc15','#60a5fa','#f97316','#e879f9',
-    '#34d399','#fb7185','#a78bfa','#38bdf8','#fbbf24',
-    '#f472b6','#84cc16','#fb923c','#c084fc','#2dd4bf',
-  ];
+  // Laske kaikki pelaajat + heidän kumulatiivinen data
+  chartAllPlayers = Object.entries(users)
+    .map(([name, data]) => {
+      const preds = data.predictions || {};
+      let cum = 0;
+      const pts = played.map(m => {
+        const p = preds[m.id], r = results[m.id];
+        const v = (p && r) ? (calcPts(p.h, p.a, r.h, r.a) ?? 0) : 0;
+        cum += v; return cum;
+      });
+      return { name, total: cum, pts };
+    })
+    .sort((a, b) => b.total - a.total);
 
-  const playerNames = Object.keys(users);
-  const labels = played.map((m, i) => `P${i + 1}`); // "P1", "P2" ...
+  // Oletusvalinta: tallennettu / top 5 + oma nimi
+  if (chartSelectedPlayers.size === 0) {
+    const saved = loadChartSelection();
+    if (saved && saved.size > 0) {
+      // Suodata pois pelaajat jotka eivät enää ole mukana
+      chartSelectedPlayers = new Set([...saved].filter(n => chartAllPlayers.some(p => p.name === n)));
+    }
+    if (chartSelectedPlayers.size === 0) {
+      chartAllPlayers.slice(0, 5).forEach(p => chartSelectedPlayers.add(p.name));
+      if (currentUser) chartSelectedPlayers.add(currentUser);
+    }
+  }
 
-  const datasets = playerNames.map((name, idx) => {
-    const preds = users[name].predictions;
-    let cumulative = 0;
-    const data = played.map(m => {
-      const p = preds[m.id];
-      const r = results[m.id];
-      const pts = (p && r) ? (calcPts(p.h, p.a, r.h, r.a) ?? 0) : 0;
-      cumulative += pts;
-      return cumulative;
-    });
-    const color = PALETTE[idx % PALETTE.length];
+  renderChartPlayerList();
+  drawChart(played);
+}
+
+function renderChartPlayerList(filter = '') {
+  const list = document.getElementById('chart-player-list');
+  const q = filter.toLowerCase();
+  const visible = chartAllPlayers.filter(p => !q || p.name.toLowerCase().includes(q));
+  list.innerHTML = visible.map((p, i) => {
+    const colorIdx = chartAllPlayers.indexOf(p);
+    const color = PALETTE[colorIdx % PALETTE.length];
+    const checked = chartSelectedPlayers.has(p.name);
+    const isMe = p.name === currentUser;
+    return `<label class="chart-player-chip${checked ? ' selected' : ''}${isMe ? ' me' : ''}"
+        style="${checked ? `--chip-color:${color}` : ''}">
+      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleChartPlayer('${p.name.replace(/'/g,"\\'")}', this.checked)" style="display:none">
+      <span class="chip-dot" style="background:${checked ? color : 'transparent'};border-color:${color}"></span>
+      <span class="chip-name">${p.name}</span>
+      <span class="chip-pts">${p.total}p</span>
+    </label>`;
+  }).join('');
+}
+
+function toggleChartPlayer(name, on) {
+  on ? chartSelectedPlayers.add(name) : chartSelectedPlayers.delete(name);
+  saveChartSelection();
+  renderChartPlayerList(document.getElementById('chart-search').value);
+  const played = [...MATCHES].sort((a,b)=>new Date(a.t)-new Date(b.t)).filter(m=>results[m.id]);
+  drawChart(played);
+}
+
+function filterChartPlayers() {
+  renderChartPlayerList(document.getElementById('chart-search').value);
+}
+
+function chartSelectTop5() {
+  chartSelectedPlayers = new Set(chartAllPlayers.slice(0, 5).map(p => p.name));
+  if (currentUser) chartSelectedPlayers.add(currentUser);
+  saveChartSelection();
+  renderChartPlayerList(document.getElementById('chart-search').value);
+  const played = [...MATCHES].sort((a,b)=>new Date(a.t)-new Date(b.t)).filter(m=>results[m.id]);
+  drawChart(played);
+}
+
+function chartSelectAll() {
+  chartSelectedPlayers = new Set(chartAllPlayers.map(p => p.name));
+  saveChartSelection();
+  renderChartPlayerList(document.getElementById('chart-search').value);
+  const played = [...MATCHES].sort((a,b)=>new Date(a.t)-new Date(b.t)).filter(m=>results[m.id]);
+  drawChart(played);
+}
+
+function chartSelectNone() {
+  chartSelectedPlayers = new Set(currentUser ? [currentUser] : []);
+  saveChartSelection();
+  renderChartPlayerList(document.getElementById('chart-search').value);
+  const played = [...MATCHES].sort((a,b)=>new Date(a.t)-new Date(b.t)).filter(m=>results[m.id]);
+  drawChart(played);
+}
+
+function drawChart(played) {
+  const selected = chartAllPlayers.filter(p => chartSelectedPlayers.has(p.name));
+  const labels = played.map((_, i) => `P${i + 1}`);
+  const matchLabels = played.map(m => `${m.h} – ${m.a} (${m.t ? m.t.slice(0,10) : ''})`);
+
+  const datasets = selected.map(p => {
+    const colorIdx = chartAllPlayers.indexOf(p);
+    const color = PALETTE[colorIdx % PALETTE.length];
+    const isMe = p.name === currentUser;
     return {
-      label: name,
-      data,
+      label: p.name,
+      data: p.pts,
       borderColor: color,
-      backgroundColor: color + '22',
-      borderWidth: name === currentUser ? 3 : 1.5,
-      pointRadius: name === currentUser ? 4 : 2,
+      backgroundColor: color + '18',
+      borderWidth: isMe ? 3 : 1.5,
+      pointRadius: isMe ? 4 : 2,
       pointHoverRadius: 6,
       tension: 0.3,
       fill: false,
     };
   });
 
-  // Pisteet x-akselin tooltippiin
-  const matchLabels = played.map(m => {
-    const t = m.t ? m.t.slice(0, 10) : '';
-    return `${m.h} – ${m.a} (${t})`;
-  });
-
   document.getElementById('chart-sub').textContent =
-    `${played.length} pelattua ottelua · ${playerNames.length} pelaajaa`;
+    `${played.length} pelattua ottelua · ${selected.length}/${chartAllPlayers.length} pelaajaa näkyvissä`;
 
   const ctx = document.getElementById('pts-chart').getContext('2d');
   if (chartInstance) chartInstance.destroy();
@@ -1151,15 +1241,7 @@ function renderChart() {
       maintainAspectRatio: true,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            color: '#cbd5cb',
-            font: { size: 12 },
-            boxWidth: 14,
-            padding: 14,
-          },
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: '#1e2d20',
           borderColor: '#2e7d4f',
@@ -1173,15 +1255,8 @@ function renderChart() {
         },
       },
       scales: {
-        x: {
-          ticks: { color: '#8aab8a', font: { size: 11 } },
-          grid:  { color: '#2a3d2a' },
-        },
-        y: {
-          beginAtZero: true,
-          ticks: { color: '#8aab8a', font: { size: 11 }, stepSize: 1 },
-          grid:  { color: '#2a3d2a' },
-        },
+        x: { ticks: { color: '#8aab8a', font: { size: 11 } }, grid: { color: '#2a3d2a' } },
+        y: { beginAtZero: true, ticks: { color: '#8aab8a', font: { size: 11 } }, grid: { color: '#2a3d2a' } },
       },
     },
   });

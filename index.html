@@ -94,7 +94,20 @@
   <div id="tab-chart" class="section">
     <div class="chart-wrap">
       <h2 class="chart-title">Pistekehitys turnauksen aikana</h2>
-      <p class="chart-sub" id="chart-sub">Kuvaajassa näkyy pelaajien kumulatiiviset pisteet peli peliltä.</p>
+      <p class="chart-sub" id="chart-sub">Kumulatiiviset pisteet peli peliltä.</p>
+
+      <div class="chart-controls">
+        <div class="chart-search-wrap">
+          <input type="text" id="chart-search" placeholder="Hae pelaajaa…" oninput="filterChartPlayers()" autocomplete="off" />
+        </div>
+        <div class="chart-player-list" id="chart-player-list"></div>
+        <div class="chart-actions">
+          <button class="chart-action-btn" onclick="chartSelectTop5()">Top 5</button>
+          <button class="chart-action-btn" onclick="chartSelectAll()">Kaikki</button>
+          <button class="chart-action-btn" onclick="chartSelectNone()">Tyhjennä</button>
+        </div>
+      </div>
+
       <div class="chart-canvas-wrap">
         <canvas id="pts-chart"></canvas>
       </div>
