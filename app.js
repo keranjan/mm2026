@@ -200,7 +200,7 @@ const MATCHES = [
 let predictions = {};
 let results     = {};
 let users       = {};
-let currentUser = localStorage.getItem('wc26_me') || '';
+let currentUser = localStorage.getItem('wc26_me_test') || '';
 let adminOpen   = false;
 
 /* ══════════════════════════════════════════
@@ -511,7 +511,7 @@ async function savePredictions() {
   }
 
   currentUser = name;
-  localStorage.setItem('wc26_me', name);
+  localStorage.setItem('wc26_me_test', name);
   await loadAllPredictions();
   renderLeaderboard();
   const count = safeRows.length;
@@ -1097,7 +1097,7 @@ let chartInstance = null;
 let chartSelectedPlayers = new Set();
 let chartAllPlayers = [];
 
-const CHART_STORAGE_KEY = 'wc26_chart_players';
+const CHART_STORAGE_KEY = 'wc26_chart_players_test';
 
 function saveChartSelection() {
   localStorage.setItem(CHART_STORAGE_KEY, JSON.stringify([...chartSelectedPlayers]));
