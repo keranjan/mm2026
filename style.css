@@ -230,7 +230,7 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 @media (orientation: portrait) and (max-width: 768px) {
   .match-row     { flex-wrap: wrap; }
   .team-block    { flex: 1 1 40%; min-width: 0; order: 0; }
-  .team-block.away { justify-content: flex-end; text-align: right; margin-left: auto; }
+  .team-block.away { text-align: right; margin-left: auto; }
   .match-stepper { flex: 1 1 100%; justify-content: center; order: 1; }
 }
 .flag      { font-size: 20px; line-height: 1; flex-shrink: 0; }
