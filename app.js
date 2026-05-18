@@ -357,7 +357,7 @@ function matchCardHtml(m) {
         <span class="flag">${flag(m.h)}</span>
         <span class="team-name">${fi(m.h)}</span>
       </div>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+      <div class="match-stepper">
         <div class="stepper">
           <button class="step-btn" ${dis} onclick="stepPred('${m.id}','h',-1)">−</button>
           <div class="score-display${hEmpty}">${hDisp}</div>
