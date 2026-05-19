@@ -687,13 +687,13 @@ const ACHIEVEMENTS = [
       return MATCHES.some(m => {
         const r = results[m.id]; if (!r) return false;
         const p = preds[m.id];   if (!p || p.h === null) return false;
-        if (calcPts(p.h, p.a, r.h, r.a) === 0) return false;
-        const others = Object.values(users).filter(udata => {
+        if (calcPts(p.h, p.a, r.h, r.a) !== 3) return false;
+        const othersExact = Object.values(users).filter(udata => {
           const op = udata.predictions?.[m.id];
           if (!op || op.h === null) return false;
-          return calcPts(op.h, op.a, r.h, r.a) > 0;
+          return calcPts(op.h, op.a, r.h, r.a) === 3;
         });
-        return others.length === 1;
+        return othersExact.length === 1;
       });
     },
   },
