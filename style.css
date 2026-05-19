@@ -162,9 +162,16 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
 
 /* ── Edistymispalkki ── */
-.progress-info  { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.progress-info  { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
 .progress-track { background: rgba(255,255,255,0.07); border-radius: 100px; height: 4px; margin-bottom: 1.5rem; }
 .progress-fill  { height: 4px; border-radius: 100px; background: linear-gradient(90deg, var(--green), var(--green-bright)); transition: width 0.3s; }
+.toggle-locked-btn {
+  background: none; border: 1px solid var(--border-green); color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 5px 14px;
+  border-radius: 100px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.toggle-locked-btn:hover { color: var(--text); border-color: var(--green-bright); }
+.toggle-locked-btn.active { color: var(--green-bright); border-color: var(--green-bright); background: rgba(46,125,79,0.12); }
 
 /* ── Päivämäärä-otsikko ── */
 .date-label {

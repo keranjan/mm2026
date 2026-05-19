@@ -383,6 +383,17 @@ function matchCardHtml(m) {
   </div>`;
 }
 
+let hideLocked = localStorage.getItem('wc26_hide_locked_test') === 'true';
+
+function toggleLocked() {
+  hideLocked = !hideLocked;
+  localStorage.setItem('wc26_hide_locked_test', hideLocked);
+  const btn = document.getElementById('toggle-locked-btn');
+  btn.textContent = hideLocked ? 'Näytä lukitut' : 'Piilota lukitut';
+  btn.classList.toggle('active', hideLocked);
+  renderMatches();
+}
+
 function renderMatches() {
   // Kuuma putki -banneri
   const streakEl = document.getElementById('streak-banner');
@@ -399,15 +410,22 @@ function renderMatches() {
     streakEl.style.display = 'none';
   }
 
+  // Synkronoi napin tila
+  const toggleBtn = document.getElementById('toggle-locked-btn');
+  if (toggleBtn) {
+    toggleBtn.textContent = hideLocked ? 'Näytä lukitut' : 'Piilota lukitut';
+    toggleBtn.classList.toggle('active', hideLocked);
+  }
+
   const sorted = [...MATCHES].sort((a, b) => new Date(a.t) - new Date(b.t));
   let html = '', lastKey = '';
   for (const m of sorted) {
-    const isKnockout = !!ROUND_NAMES[m.g];
+    if (hideLocked && isLocked(m)) continue;
+    const isKnockoutMatch = !!ROUND_NAMES[m.g];
     const day = dayKey(m.t);
-    // Lohkovaihe: pelkkä päivämäärä | Jatkovaihe: kierros + päivämäärä
-    const key = isKnockout ? `${m.g}__${day}` : day;
+    const key = isKnockoutMatch ? `${m.g}__${day}` : day;
     if (key !== lastKey) {
-      if (isKnockout) {
+      if (isKnockoutMatch) {
         html += `<div class="date-label">${ROUND_NAMES[m.g]} &middot; ${fmtDate(m.t)}</div>`;
       } else {
         html += `<div class="date-label">${fmtDate(m.t)}</div>`;
@@ -416,6 +434,7 @@ function renderMatches() {
     }
     html += matchCardHtml(m);
   }
+  if (html === '') html = `<div class="empty-state">Ei avoimia otteluita — kaikki on lukittu.</div>`;
   document.getElementById('matches-container').innerHTML = html;
   updateProgress();
 }
