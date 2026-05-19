@@ -405,7 +405,7 @@ function unlockUsername() {
   if (btn) btn.style.display = 'none';
 }
 
-
+function toggleLocked() {
   hideLocked = !hideLocked;
   localStorage.setItem('wc26_hide_locked_test', hideLocked);
   const btn = document.getElementById('toggle-locked-btn');
