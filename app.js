@@ -1289,7 +1289,7 @@ function drawChart(played) {
       borderWidth: isMe ? 3 : 1.5,
       pointRadius: isMe ? 4 : 2,
       pointHoverRadius: 6,
-      tension: 0.3,
+      tension: 0,
       fill: false,
     };
   });
