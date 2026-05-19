@@ -1062,6 +1062,7 @@ async function deleteResult(id) {
 }
 
 
+function adminCardHtml(m) {
   const r      = results[m.id] || {};
   const hv     = r.h !== undefined && r.h !== null ? r.h : null;
   const av     = r.a !== undefined && r.a !== null ? r.a : null;
