@@ -662,3 +662,53 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   transition: all 0.15s;
 }
 .chart-action-btn:hover { color: var(--text); border-color: var(--green-bright); }
+
+/* ── Admin-kortin alatunniste ── */
+.admin-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.delete-result-btn {
+  background: none;
+  border: 1px solid #c04040;
+  color: #f09090;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.delete-result-btn:hover {
+  background: rgba(192,64,64,0.15);
+  color: #fca5a5;
+}
+
+/* ── Käyttäjänimi-lukitus ── */
+.username-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.username-wrap input { flex: 1; }
+.username-change-btn {
+  background: none;
+  border: 1px solid var(--border-green);
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.username-change-btn:hover {
+  color: var(--text);
+  border-color: var(--green-bright);
+}

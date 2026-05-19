@@ -385,7 +385,27 @@ function matchCardHtml(m) {
 
 let hideLocked = localStorage.getItem('wc26_hide_locked_test') === 'true';
 
-function toggleLocked() {
+function lockUsername() {
+  const input = document.getElementById('username');
+  const btn   = document.getElementById('username-change-btn');
+  input.readOnly = true;
+  input.style.opacity = '0.6';
+  input.style.cursor  = 'default';
+  if (btn) btn.style.display = 'inline-flex';
+}
+
+function unlockUsername() {
+  const input = document.getElementById('username');
+  const btn   = document.getElementById('username-change-btn');
+  input.readOnly = false;
+  input.style.opacity = '1';
+  input.style.cursor  = '';
+  input.focus();
+  input.select();
+  if (btn) btn.style.display = 'none';
+}
+
+
   hideLocked = !hideLocked;
   localStorage.setItem('wc26_hide_locked_test', hideLocked);
   const btn = document.getElementById('toggle-locked-btn');
@@ -531,6 +551,7 @@ async function savePredictions() {
 
   currentUser = name;
   localStorage.setItem('wc26_me_test', name);
+  lockUsername();
   await loadAllPredictions();
   renderLeaderboard();
   const count = safeRows.length;
@@ -1028,7 +1049,19 @@ async function stepResult(id, side, delta) {
   toast('Tulos tallennettu', 'success');
 }
 
-function adminCardHtml(m) {
+async function deleteResult(id) {
+  if (!confirm(`Poistetaanko tulos ottelusta ${id}? Tätä ei voi peruuttaa.`)) return;
+  await api(`results?match_id=eq.${id}`, { method: 'DELETE' });
+  delete results[id];
+  const el = document.getElementById('ac-' + id);
+  const m  = MATCHES.find(x => x.id === id);
+  if (el && m) el.outerHTML = adminCardHtml(m);
+  refreshCard(id);
+  renderLeaderboard();
+  toast('Tulos poistettu', 'info');
+}
+
+
   const r      = results[m.id] || {};
   const hv     = r.h !== undefined && r.h !== null ? r.h : null;
   const av     = r.a !== undefined && r.a !== null ? r.a : null;
@@ -1036,6 +1069,7 @@ function adminCardHtml(m) {
   const aDisp  = av !== null ? av : '–';
   const hEmpty = hv === null ? ' empty' : '';
   const aEmpty = av === null ? ' empty' : '';
+  const hasResult = hv !== null && av !== null;
   return `<div class="admin-card" id="ac-${m.id}">
     <div class="admin-row">
       <div class="admin-team">
@@ -1060,7 +1094,10 @@ function adminCardHtml(m) {
         <span>${fi(m.a)}</span>
       </div>
     </div>
-    <div class="match-meta" style="margin-top:5px">Lohko ${m.g} &middot; ${fmtDate(m.t)} ${fmtTime(m.t)}</div>
+    <div class="admin-card-footer">
+      <span class="match-meta">Lohko ${m.g} &middot; ${fmtDate(m.t)} ${fmtTime(m.t)}</span>
+      ${hasResult ? `<button class="delete-result-btn" onclick="deleteResult('${m.id}')">🗑 Poista tulos</button>` : ''}
+    </div>
   </div>`;
 }
 
@@ -1306,7 +1343,10 @@ function toast(msg, type = 'info') {
 ══════════════════════════════════════════ */
 
 async function init() {
-  if (currentUser) document.getElementById('username').value = currentUser;
+  if (currentUser) {
+    document.getElementById('username').value = currentUser;
+    lockUsername();
+  }
   renderMatches();
   document.getElementById('lb-body').innerHTML = '<div class="empty-state">Ladataan…</div>';
   await loadResults();

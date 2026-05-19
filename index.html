@@ -53,7 +53,10 @@
     <div class="name-bar">
       <div style="flex:1">
         <label for="username">Nimesi (näkyy tulostaulukossa)</label>
-        <input type="text" id="username" placeholder="Etunimi Sukunimi #10" maxlength="20" />
+        <div class="username-wrap">
+          <input type="text" id="username" placeholder="Etunimi Sukunimi #10" maxlength="20" />
+          <button id="username-change-btn" class="username-change-btn" onclick="unlockUsername()" style="display:none">✏️ Vaihda</button>
+        </div>
       </div>
       <button id="save-btn" class="btn" onclick="savePredictions()">Tallenna veikkaukset</button>
     </div>
