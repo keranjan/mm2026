@@ -886,14 +886,10 @@ function openProfile(name, rank) {
     .filter(m => results[m.id] && preds[m.id] && preds[m.id].h !== null && preds[m.id].a !== null)
     .sort((a, b) => new Date(a.t) - new Date(b.t));
 
-  const played3 = played.filter(m => {
-    const p = preds[m.id]; const r = results[m.id];
-    return p && r && calcPts(p.h, p.a, r.h, r.a) === 3;
-  });
-  const played0 = played.filter(m => {
-    const p = preds[m.id]; const r = results[m.id];
-    return p && r && calcPts(p.h, p.a, r.h, r.a) === 0;
-  });
+  const played3 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 3);
+  const played2 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 2);
+  const played1 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 1);
+  const played0 = played.filter(m => calcPts(preds[m.id].h, preds[m.id].a, results[m.id].h, results[m.id].a) === 0);
 
   const totalPlayed = played.length;
   const hitRate     = totalPlayed ? Math.round((stats.exact + stats.diff + stats.win) / totalPlayed * 100) : 0;
@@ -977,21 +973,35 @@ function openProfile(name, rank) {
     <div class="profile-section-title" style="margin-top:1.5rem">Pisteet per lohko${bestGroup ? ` · Paras: Lohko ${bestGroup}` : ''}</div>
     <div class="profile-groups">${groupGrid}</div>
 
-    ${played3.length ? `
-      <div class="profile-section-title" style="margin-top:1.5rem">🥇 Tarkat tulokset (${played3.length} kpl)</div>
-      ${matchRows(played3)}
-    ` : ''}
-
-    ${played0.length ? `
-      <div class="profile-section-title" style="margin-top:1.5rem">Ei osunut (${played0.length} kpl)</div>
-      ${matchRows(played0)}
-    ` : ''}
-
-    ${!played.length ? '<p style="color:var(--text-muted);font-size:13px;margin-top:1rem">Ei vielä tuloksia syötetty – profiili täydentyy kisojen edetessä.</p>' : ''}
+    ${played.length ? `
+    <div class="profile-section-title" style="margin-top:1.5rem">Ottelut</div>
+    <div class="profile-match-tabs">
+      <button class="pmt-btn active" onclick="switchProfileTab(this,'tab3')">🥇 Tarkka (${played3.length})</button>
+      <button class="pmt-btn" onclick="switchProfileTab(this,'tab2')">🥈 Maaliero (${played2.length})</button>
+      <button class="pmt-btn" onclick="switchProfileTab(this,'tab1')">🥉 Voittaja (${played1.length})</button>
+      <button class="pmt-btn" onclick="switchProfileTab(this,'tab0')">✗ Ei osunut (${played0.length})</button>
+    </div>
+    <div id="tab3" class="profile-match-tab-content">${matchRows(played3)}</div>
+    <div id="tab2" class="profile-match-tab-content" style="display:none">${matchRows(played2)}</div>
+    <div id="tab1" class="profile-match-tab-content" style="display:none">${matchRows(played1)}</div>
+    <div id="tab0" class="profile-match-tab-content" style="display:none">${matchRows(played0)}</div>
+    ` : '<p style="color:var(--text-muted);font-size:13px;margin-top:1rem">Ei vielä tuloksia syötetty – profiili täydentyy kisojen edetessä.</p>'}
   `;
 
+  const modal = document.getElementById('profile-modal');
+  modal.classList.remove('rank-1','rank-2','rank-3');
+  if (rank === 1) modal.classList.add('rank-1');
+  else if (rank === 2) modal.classList.add('rank-2');
+  else if (rank === 3) modal.classList.add('rank-3');
   document.getElementById('profile-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function switchProfileTab(btn, tabId) {
+  document.querySelectorAll('.pmt-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.profile-match-tab-content').forEach(t => t.style.display = 'none');
+  btn.classList.add('active');
+  document.getElementById(tabId).style.display = 'block';
 }
 
 function closeProfile(e) {

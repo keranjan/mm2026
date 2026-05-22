@@ -371,9 +371,29 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   padding: 1.75rem 1.5rem 1.5rem;
   animation: modalIn 0.2s ease;
+}
+.profile-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 30%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+  animation: modalShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.profile-modal.rank-1::before { background: linear-gradient(90deg, transparent, rgba(255,215,60,0.13), transparent); }
+.profile-modal.rank-2::before { background: linear-gradient(90deg, transparent, rgba(200,220,235,0.11), transparent); }
+.profile-modal.rank-3::before { background: linear-gradient(90deg, transparent, rgba(210,145,80,0.11),  transparent); }
+.profile-modal:not(.rank-1):not(.rank-2):not(.rank-3)::before { display: none; }
+@keyframes modalShimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(500%)  skewX(-15deg); }
 }
 @keyframes modalIn {
   from { opacity: 0; transform: translateY(16px) scale(0.97); }
@@ -422,6 +442,9 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .ps-silver { color: #a8b8c4; }
 .ps-bronze { color: #c09060; }
 .ps-miss   { color: var(--text-muted); }
+
+/* Ei säihdettä pmr-badgeille */
+.pmr-badge::after { display: none !important; }
 
 /* Parhaiten pärjännyt lohko */
 .profile-section-title {
@@ -712,3 +735,25 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   color: var(--text);
   border-color: var(--green-bright);
 }
+
+/* ── Profiili: otteluvälilehdet ── */
+.profile-match-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+.pmt-btn {
+  background: var(--bg-mid);
+  border: 1px solid var(--border-green);
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.pmt-btn:hover  { color: var(--text); border-color: var(--green-bright); }
+.pmt-btn.active { color: var(--green-bright); border-color: var(--green-bright); background: rgba(46,125,79,0.12); }
