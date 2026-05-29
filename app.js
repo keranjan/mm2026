@@ -592,8 +592,10 @@ function renderLeaderboard() {
         const isWeekly  = weeklyWinners.has(u.name);
         return `<div class="lb-entry${u.name === currentUser ? ' me' : ''}" onclick="openProfile('${u.name.replace(/'/g,"\\'")}', ${i + 1})" style="cursor:pointer">
           <div class="lb-rank">${i < 3 ? medals[i] : i + 1}</div>
-          <div class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}${isWeekly ? ' <span class="badge-weekly" title="Viikon veikkaaja — eniten pisteitä viimeisen 7 päivän otteluista">⭐ viikon veikkaaja</span>' : ''}</div>
-          <div class="lb-icons">${icons}</div>
+          <div class="lb-name-cell">
+            <div class="lb-name">${u.name}${u.name === currentUser ? ' <span style="font-size:11px;color:var(--text-muted)">(sinä)</span>' : ''}${isWeekly ? ' <span class="badge-weekly" title="Viikon veikkaaja — eniten pisteitä viimeisen 7 päivän otteluista">⭐ viikon veikkaaja</span>' : ''}</div>
+            ${icons ? `<div class="lb-icons">${icons}</div>` : ''}
+          </div>
           <div class="lb-breakdown">${u.exact} / ${u.diff} / ${u.win}</div>
           <div class="lb-pts">${u.total}</div>
         </div>`;
