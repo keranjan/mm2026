@@ -303,10 +303,12 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 .lb-entry:last-child { border-bottom: none; }
 .lb-entry.me         { background: rgba(46,125,79,0.1); }
 .lb-rank      { font-size: 13px; color: var(--text-muted); text-align: center; }
-.lb-name      { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.lb-icons     { font-size: 13px; line-height: 1; display: flex; flex-wrap: nowrap; gap: 2px; white-space: nowrap; }
+.lb-name-cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lb-name      { font-size: 14px; font-weight: 500; min-width: 0; word-break: break-word; }
+.lb-icons     { font-size: 13px; line-height: 1; display: flex; flex-wrap: wrap; gap: 2px; }
 .lb-breakdown { font-size: 12px; color: var(--text-muted); padding-left: 12px; border-left: 1px solid var(--border); }
 .lb-pts       { font-size: 16px; font-weight: 500; color: var(--gold-light); text-align: right; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+.lb-icons-col { display: none; }
 .empty-state  { padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 14px; }
 
 /* ── Admin ── */
@@ -545,12 +547,9 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   .nav-btn   { font-size: 12px; padding: 7px 9px; }
   .team-name { font-size: 12px; }
   .flag      { font-size: 18px; }
-  .lb-head, .lb-entry { grid-template-columns: 26px 1fr 56px 44px; gap: 5px; padding: 0.65rem 0.75rem; font-size: 11px; }
-  .lb-head .lb-icons-col { display: none; }
+  .lb-head, .lb-entry { grid-template-columns: 26px 1fr auto 56px 44px; gap: 5px; padding: 0.65rem 0.75rem; font-size: 11px; }
   .lb-icons  { font-size: 11px; }
   .lb-breakdown { font-size: 11px; }
-  .lb-name-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .lb-icons { flex-wrap: wrap; font-size: 11px; }
   .step-btn      { width: 36px; height: 36px; font-size: 20px; }
   .score-display { width: 36px; font-size: 16px; }
   .name-bar { flex-direction: column; align-items: stretch; }
