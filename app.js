@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════ */
 
 /* ── Asetukset – muuta ADMIN_PIN ── */
-const ADMIN_PIN    = '1234';
+const ADMIN_PIN    = '35242083';
 const SUPABASE_URL = 'https://oaoppcicnsnvjkbbjfda.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5my6qDEV3aFTxP8F8xVnlg_2mPaekjo';
 
@@ -200,7 +200,7 @@ const MATCHES = [
 let predictions = {};
 let results     = {};
 let users       = {};
-let currentUser = localStorage.getItem('wc26_me_test') || '';
+let currentUser = localStorage.getItem('wc26_me') || '';
 let adminOpen   = false;
 
 /* ══════════════════════════════════════════
@@ -383,7 +383,7 @@ function matchCardHtml(m) {
   </div>`;
 }
 
-let hideLocked = localStorage.getItem('wc26_hide_locked_test') === 'true';
+let hideLocked = localStorage.getItem('wc26_hide_locked') === 'true';
 
 function lockUsername() {
   const input = document.getElementById('username');
@@ -407,7 +407,7 @@ function unlockUsername() {
 
 function toggleLocked() {
   hideLocked = !hideLocked;
-  localStorage.setItem('wc26_hide_locked_test', hideLocked);
+  localStorage.setItem('wc26_hide_locked', hideLocked);
   const btn = document.getElementById('toggle-locked-btn');
   btn.textContent = hideLocked ? 'Näytä lukitut' : 'Piilota lukitut';
   btn.classList.toggle('active', hideLocked);
@@ -550,7 +550,7 @@ async function savePredictions() {
   }
 
   currentUser = name;
-  localStorage.setItem('wc26_me_test', name);
+  localStorage.setItem('wc26_me', name);
   lockUsername();
   await loadAllPredictions();
   renderLeaderboard();
@@ -1168,7 +1168,7 @@ let chartInstance = null;
 let chartSelectedPlayers = new Set();
 let chartAllPlayers = [];
 
-const CHART_STORAGE_KEY = 'wc26_chart_players_test';
+const CHART_STORAGE_KEY = 'wc26_chart_players';
 
 function saveChartSelection() {
   localStorage.setItem(CHART_STORAGE_KEY, JSON.stringify([...chartSelectedPlayers]));
