@@ -121,7 +121,7 @@ const MATCHES = [
   {id:'m41',g:'J',h:'Argentina',    a:'Austria',      t:'2026-06-22T17:00Z'},
   {id:'m42',g:'I',h:'France',       a:'Iraq',         t:'2026-06-22T21:00Z'},
   {id:'m43',g:'I',h:'Norway',       a:'Senegal',      t:'2026-06-23T00:00Z'},
-  {id:'m44',g:'J',h:'Jordan',       a:'Algeria',      t:'2026-06-23T03:00Z'},
+  {id:'m44',g:'J',h:'Jordan',       a:'Algeria',      t:'2026-06-23T04:00Z'},
   {id:'m45',g:'K',h:'Portugal',     a:'Uzbekistan',   t:'2026-06-23T17:00Z'},
   {id:'m46',g:'L',h:'England',      a:'Ghana',        t:'2026-06-23T20:00Z'},
   {id:'m47',g:'L',h:'Panama',       a:'Croatia',      t:'2026-06-23T23:00Z'},
