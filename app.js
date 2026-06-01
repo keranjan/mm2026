@@ -616,6 +616,7 @@ function renderLeaderboard() {
   const weeklyWinners = new Set(topWeekly > 0 ? ranked.filter(u => u.weekly === topWeekly).map(u => u.name) : []);
 
   const medals = ['🥇', '🥈', '🥉'];
+  const hasResults = Object.keys(results).length > 0;
   const html = ranked.length
     ? ranked.map((u, i) => {
         const preds     = users[u.name]?.predictions || {};
@@ -623,7 +624,7 @@ function renderLeaderboard() {
         const icons     = achiev.filter(a => a.unlocked).map(a => `<span title="${a.name}">${a.icon}</span>`).join('');
         const isWeekly  = weeklyWinners.has(u.name);
         return `<div class="lb-entry${u.name === currentUser ? ' me' : ''}" onclick="openProfile('${u.name.replace(/'/g,"\\'")}', ${i + 1})" style="cursor:pointer">
-          <div class="lb-rank">${i < 3 ? medals[i] : i + 1}</div>
+          <div class="lb-rank">${i < 3 && hasResults ? medals[i] : i + 1}</div>
           <div class="lb-name-cell">
             <div class="lb-name">${u.name}${u.name === currentUser ? ' <span class="lb-me-tag">(sinä)</span>' : ''}</div>
             ${isWeekly ? `<div class="lb-weekly-row"><span class="badge-weekly">⭐ viikon veikkaaja</span></div>` : ''}
