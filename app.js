@@ -252,6 +252,8 @@ async function loadResults() {
   } catch (e) { console.error('loadResults:', e); }
 }
 
+let savedPredictions = {}; // kopio tietokannasta, ei muutu ennen seuraavaa latausta
+
 async function loadAllPredictions() {
   try {
     const PAGE = 1000;
@@ -273,7 +275,11 @@ async function loadAllPredictions() {
       users[r.username].predictions[r.match_id] = { h: r.home_goals, a: r.away_goals };
     });
     if (currentUser && users[currentUser]) {
-      predictions = users[currentUser].predictions;
+      // Tallennetaan erillinen kopio tietokannasta
+      savedPredictions = Object.assign({}, users[currentUser].predictions);
+      // predictions on paikallinen kopio jota käyttäjä muokkaa
+      predictions = {};
+      Object.entries(savedPredictions).forEach(([k, v]) => predictions[k] = { ...v });
     }
   } catch (e) { console.error('loadAllPredictions:', e); }
 }
@@ -294,6 +300,26 @@ function stepPred(id, side, delta) {
   predictions[id][side] = next;
   updateProgress();
   refreshCard(id);
+  updateUnsavedBanner();
+}
+
+function updateUnsavedBanner() {
+  const unsavedBanner = document.getElementById('unsaved-banner');
+  if (!unsavedBanner || !currentUser) { if (unsavedBanner) unsavedBanner.style.display = 'none'; return; }
+  const openMatches = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
+  const unsaved = openMatches.filter(m => {
+    const local = predictions[m.id];
+    if (!local || local.h === null || local.a === null) return false;
+    const saved = savedPredictions[m.id];
+    if (!saved) return true;
+    return saved.h !== local.h || saved.a !== local.a;
+  });
+  if (unsaved.length > 0) {
+    unsavedBanner.textContent = `⚠️ ${unsaved.length} veikkausta tallentamatta — muista tallentaa!`;
+    unsavedBanner.style.display = 'block';
+  } else {
+    unsavedBanner.style.display = 'none';
+  }
 }
 
 function updateProgress() {
@@ -341,6 +367,13 @@ function cardExtraClass(id) {
   return pts === null ? '' : ['pts-0', 'pts-1', 'pts-2', 'pts-3'][pts];
 }
 
+function isSavedPred(id) {
+  const saved = savedPredictions[id];
+  const local = predictions[id];
+  if (!saved || !local || local.h === null || local.a === null) return false;
+  return saved.h === local.h && saved.a === local.a;
+}
+
 function matchCardHtml(m) {
   const p      = getPred(m.id);
   const locked = isLocked(m);
@@ -351,6 +384,11 @@ function matchCardHtml(m) {
   const aDisp  = av !== null ? av : '–';
   const hEmpty = hv === null ? ' empty' : '';
   const aEmpty = av === null ? ' empty' : '';
+  const saved  = !locked && !isKnockout(m) && isSavedPred(m.id);
+  const filled = !locked && !isKnockout(m) && hv !== null && av !== null;
+  const savedTag = saved
+    ? '<span class="pred-saved-tag">✓ tallennettu</span>'
+    : (filled ? '<span class="pred-unsaved-tag">● tallentamatta</span>' : '');
   return `<div class="match-card ${locked ? 'locked' : ''} ${isKnockout(m) ? 'knockout' : ''} ${cardExtraClass(m.id)}" id="mc-${m.id}">
     <div class="match-row">
       <div class="team-block">
@@ -377,7 +415,7 @@ function matchCardHtml(m) {
     </div>
     <div class="match-meta">
       <span>${ROUND_NAMES[m.g] ? `${fmtDate(m.t)} &middot; ${fmtTime(m.t)}` : `Lohko ${m.g} &middot; ${fmtTime(m.t)}`}</span>
-      ${locked ? '<span>&#128274; lukittu</span>' : ''}
+      <span>${locked ? '&#128274; lukittu' : savedTag}</span>
     </div>
     ${resultBadge(m.id)}
   </div>`;
@@ -387,22 +425,9 @@ let hideLocked = localStorage.getItem('wc26_hide_locked') === 'true';
 
 function lockUsername() {
   const input = document.getElementById('username');
-  const btn   = document.getElementById('username-change-btn');
   input.readOnly = true;
   input.style.opacity = '0.6';
   input.style.cursor  = 'default';
-  if (btn) btn.style.display = 'inline-flex';
-}
-
-function unlockUsername() {
-  const input = document.getElementById('username');
-  const btn   = document.getElementById('username-change-btn');
-  input.readOnly = false;
-  input.style.opacity = '1';
-  input.style.cursor  = '';
-  input.focus();
-  input.select();
-  if (btn) btn.style.display = 'none';
 }
 
 function toggleLocked() {
@@ -430,7 +455,8 @@ function renderMatches() {
     streakEl.style.display = 'none';
   }
 
-  // Synkronoi napin tila
+  // Tallentamattomien huomautus
+  updateUnsavedBanner();
   const toggleBtn = document.getElementById('toggle-locked-btn');
   if (toggleBtn) {
     toggleBtn.textContent = hideLocked ? 'Näytä lukitut' : 'Piilota lukitut';
@@ -553,6 +579,7 @@ async function savePredictions() {
   localStorage.setItem('wc26_me', name);
   lockUsername();
   await loadAllPredictions();
+  renderMatches();
   renderLeaderboard();
   const count = safeRows.length;
   toast(`${count} veikkausta tallennettu!`, 'success');
@@ -640,6 +667,20 @@ const ACHIEVEMENTS = [
     desc: '50 pistettä yhteensä',
     check: ({ stats }) => stats.total >= 50,
   },
+  {
+    id:   'seventyfive_points',
+    icon: '🌠',
+    name: 'Supertähti',
+    desc: '75 pistettä yhteensä',
+    check: ({ stats }) => stats.total >= 75,
+  },
+  {
+    id:   'hundred_points',
+    icon: '💯',
+    name: 'Sata täynnä',
+    desc: '100 pistettä yhteensä',
+    check: ({ stats }) => stats.total >= 100,
+  },
   // ── Tarkkuuspohjaisia ───────────────────────────────────────
   {
     id:   'three_exact',
@@ -656,9 +697,16 @@ const ACHIEVEMENTS = [
     check: ({ stats }) => stats.exact >= 10,
   },
   {
-    id:   'five_in_a_row',
+    id:   'three_in_a_row',
     icon: '🔥',
     name: 'Tulessa',
+    desc: '3 oikeaa voittajaa peräkkäin',
+    check: ({ streak }) => streak >= 3,
+  },
+  {
+    id:   'five_in_a_row',
+    icon: '🔥🔥',
+    name: 'Liekinheitin',
     desc: '5 oikeaa voittajaa peräkkäin',
     check: ({ streak }) => streak >= 5,
   },

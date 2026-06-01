@@ -765,3 +765,24 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
 }
 .pmt-btn:hover  { color: var(--text); border-color: var(--green-bright); }
 .pmt-btn.active { color: var(--green-bright); border-color: var(--green-bright); background: rgba(46,125,79,0.12); }
+
+/* ── Tallennettu / tallentamatta -tagit ── */
+.pred-saved-tag {
+  font-size: 11px; color: #4ade80;
+  letter-spacing: 0.02em;
+}
+.pred-unsaved-tag {
+  font-size: 11px; color: #facc15;
+  letter-spacing: 0.02em;
+}
+
+/* ── Tallentamattomien huomautusbanneri ── */
+.unsaved-banner {
+  background: linear-gradient(135deg, #2a2500, #3d3500);
+  border: 1px solid #c9a227;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 0.75rem;
+  font-size: 13px;
+  color: #f5e060;
+}
