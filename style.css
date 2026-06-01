@@ -380,25 +380,25 @@ input:disabled { opacity: 0.35; cursor: not-allowed; }
   position: relative;
   padding: 1.75rem 1.5rem 1.5rem;
   animation: modalIn 0.2s ease;
+  background-size: 300% 100%;
+  background-position: 200% 0;
 }
-.profile-modal::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 30%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-  transform: translateX(-100%) skewX(-15deg);
-  animation: modalShimmer 4s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
+.profile-modal.rank-1 {
+  background-image: linear-gradient(105deg, var(--bg-card) 40%, rgba(255,215,60,0.10) 50%, var(--bg-card) 60%);
+  animation: modalIn 0.2s ease, modalShimmer 3.5s ease-in-out infinite;
 }
-.profile-modal.rank-1::before { background: linear-gradient(90deg, transparent, rgba(255,215,60,0.13), transparent); }
-.profile-modal.rank-2::before { background: linear-gradient(90deg, transparent, rgba(200,220,235,0.11), transparent); }
-.profile-modal.rank-3::before { background: linear-gradient(90deg, transparent, rgba(210,145,80,0.11),  transparent); }
-.profile-modal:not(.rank-1):not(.rank-2):not(.rank-3)::before { display: none; }
+.profile-modal.rank-2 {
+  background-image: linear-gradient(105deg, var(--bg-card) 40%, rgba(200,220,235,0.09) 50%, var(--bg-card) 60%);
+  animation: modalIn 0.2s ease, modalShimmer 3.5s ease-in-out infinite;
+}
+.profile-modal.rank-3 {
+  background-image: linear-gradient(105deg, var(--bg-card) 40%, rgba(210,145,80,0.09) 50%, var(--bg-card) 60%);
+  animation: modalIn 0.2s ease, modalShimmer 3.5s ease-in-out infinite;
+}
+.profile-modal::before { display: none; }
 @keyframes modalShimmer {
-  0%   { transform: translateX(-100%) skewX(-15deg); }
-  100% { transform: translateX(500%)  skewX(-15deg); }
+  0%   { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
 }
 @keyframes modalIn {
   from { opacity: 0; transform: translateY(16px) scale(0.97); }

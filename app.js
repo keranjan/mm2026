@@ -275,11 +275,17 @@ async function loadAllPredictions() {
       users[r.username].predictions[r.match_id] = { h: r.home_goals, a: r.away_goals };
     });
     if (currentUser && users[currentUser]) {
-      // Tallennetaan erillinen kopio tietokannasta
       savedPredictions = Object.assign({}, users[currentUser].predictions);
-      // predictions on paikallinen kopio jota käyttäjä muokkaa
+      // Aloitetaan tallennetusta pohjasta
       predictions = {};
       Object.entries(savedPredictions).forEach(([k, v]) => predictions[k] = { ...v });
+      // Yhdistetään päälle localStorage-draft jos löytyy
+      try {
+        const draft = JSON.parse(localStorage.getItem('wc26_draft') || '{}');
+        Object.entries(draft).forEach(([k, v]) => {
+          if (v && v.h !== null && v.a !== null) predictions[k] = { ...v };
+        });
+      } catch(e) {}
     }
   } catch (e) { console.error('loadAllPredictions:', e); }
 }
@@ -298,6 +304,8 @@ function stepPred(id, side, delta) {
   const cur  = predictions[id][side];
   const next = cur === null ? (delta > 0 ? 0 : null) : Math.max(0, cur + delta);
   predictions[id][side] = next;
+  // Tallennetaan localStorageen automaattisesti
+  try { localStorage.setItem('wc26_draft', JSON.stringify(predictions)); } catch(e) {}
   updateProgress();
   refreshCard(id);
   updateUnsavedBanner();
@@ -525,10 +533,6 @@ async function savePredictions() {
     return;
   }
 
-  if (nowLocked.length > 0) {
-    toast(`${nowLocked.length} ottelu on jo alkanut — niitä ei tallenneta`, 'info');
-    await new Promise(r => setTimeout(r, 1200)); // pieni tauko ennen jatkoa
-  }
 
   const existingRes = await api(`predictions?username=eq.${encodeURIComponent(name)}&select=match_id`);
   const existingIds = new Set();
@@ -578,6 +582,7 @@ async function savePredictions() {
   currentUser = name;
   localStorage.setItem('wc26_me', name);
   lockUsername();
+  try { localStorage.removeItem('wc26_draft'); } catch(e) {}
   await loadAllPredictions();
   renderMatches();
   renderLeaderboard();
