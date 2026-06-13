@@ -1102,7 +1102,7 @@ async function stepResult(id, side, delta) {
     await api(`results?match_id=eq.${id}`, { method: 'DELETE' });
     delete results[id];
   } else if (h !== null && a !== null) {
-    await api('results', {
+    await api('results?on_conflict=match_id', {
       method: 'POST',
       prefer: 'resolution=merge-duplicates',
       body:   JSON.stringify({ match_id: id, home_goals: h, away_goals: a }),
