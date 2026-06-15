@@ -433,9 +433,22 @@ let hideLocked = localStorage.getItem('wc26_hide_locked') === 'true';
 
 function lockUsername() {
   const input = document.getElementById('username');
+  const btn   = document.getElementById('username-change-btn');
   input.readOnly = true;
   input.style.opacity = '0.6';
   input.style.cursor  = 'default';
+  if (btn) btn.style.display = 'inline-flex';
+}
+
+function unlockUsername() {
+  const input = document.getElementById('username');
+  const btn   = document.getElementById('username-change-btn');
+  input.readOnly = false;
+  input.style.opacity = '1';
+  input.style.cursor  = '';
+  input.focus();
+  input.select();
+  if (btn) btn.style.display = 'none';
 }
 
 function toggleLocked() {

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Antonio:wght@700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=1" />
 </head>
 <body>
 
@@ -55,6 +55,7 @@
         <label for="username">Nimesi (näkyy tulostaulukossa)</label>
         <div class="username-wrap">
           <input type="text" id="username" placeholder="Etunimi Sukunimi #10" maxlength="30" />
+          <button id="username-change-btn" class="username-change-btn" onclick="unlockUsername()" style="display:none">✏️ Vaihda</button>
         </div>
       </div>
       <button id="save-btn" class="btn" onclick="savePredictions()">Tallenna veikkaukset</button>
@@ -144,6 +145,6 @@
 
 <div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=1"></script>
 </body>
 </html>
