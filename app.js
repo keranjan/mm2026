@@ -400,6 +400,27 @@ function isSavedPred(id) {
   return saved.h === local.h && saved.a === local.a;
 }
 
+function topPredictions(id) {
+  const all = Object.values(users)
+    .map(u => u.predictions[id])
+    .filter(p => p && p.h !== null && p.a !== null);
+  if (all.length === 0) return '';
+
+  const counts = {};
+  all.forEach(p => {
+    const key = `${p.h}–${p.a}`;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  const top3 = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([score]) => `<span class="top-pred-chip">${score}</span>`)
+    .join('');
+
+  return `<div class="top-predictions"><span class="top-pred-label">Suosituimmat tulosveikkaukset</span>${top3}</div>`;
+}
+
 function matchCardHtml(m) {
   const p      = getPred(m.id);
   const locked = isLocked(m);
@@ -444,6 +465,7 @@ function matchCardHtml(m) {
       <span>${locked ? '&#128274; lukittu' : savedTag}</span>
     </div>
     ${resultBadge(m.id)}
+    ${locked ? topPredictions(m.id) : ''}
   </div>`;
 }
 
