@@ -966,6 +966,32 @@ const ACHIEVEMENTS = [
       return bracket.champion === actualBracket.champion;
     },
   },
+  {
+    id:   'top8_scout',
+    icon: '🔭',
+    name: 'Skautti',
+    desc: 'Vähintään 4 oikeaa joukkuetta 8 parhaan veikkauksessa',
+    check: ({ bracket }) => {
+      if (!bracket) return false;
+      const actualR16 = ['r16_1','r16_2','r16_3','r16_4','r16_5','r16_6','r16_7','r16_8']
+        .map(k => actualBracket[k]).filter(Boolean);
+      const userR16 = ['r16_1','r16_2','r16_3','r16_4','r16_5','r16_6','r16_7','r16_8']
+        .map(k => bracket[k]).filter(Boolean);
+      return userR16.filter(t => actualR16.includes(t)).length >= 4;
+    },
+  },
+  {
+    id:   'goat',
+    icon: '🐐',
+    name: 'GOAT',
+    desc: 'Yli 75 pistettä + oikea mestari mestaruusveikkauksessa + vähintään 10 tarkkaa tulosta',
+    check: ({ stats, bracket }) => {
+      if (stats.total < 75) return false;
+      if (stats.exact < 10) return false;
+      if (!bracket || !bracket.champion || !actualBracket.champion) return false;
+      return bracket.champion === actualBracket.champion;
+    },
+  },
 ];
 
 function calcStreak(preds) {
