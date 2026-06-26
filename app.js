@@ -400,6 +400,27 @@ function isSavedPred(id) {
   return saved.h === local.h && saved.a === local.a;
 }
 
+function topPredictions(id) {
+  const all = Object.values(users)
+    .map(u => u.predictions[id])
+    .filter(p => p && p.h !== null && p.a !== null);
+  if (all.length === 0) return '';
+
+  const counts = {};
+  all.forEach(p => {
+    const key = `${p.h}–${p.a}`;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  const top3 = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([score]) => `<span class="top-pred-chip">${score}</span>`)
+    .join('');
+
+  return `<div class="top-predictions"><span class="top-pred-label">Suosituimmat tulosveikkaukset</span>${top3}</div>`;
+}
+
 function matchCardHtml(m) {
   const p      = getPred(m.id);
   const locked = isLocked(m);
@@ -444,6 +465,7 @@ function matchCardHtml(m) {
       <span>${locked ? '&#128274; lukittu' : savedTag}</span>
     </div>
     ${resultBadge(m.id)}
+    ${locked ? topPredictions(m.id) : ''}
   </div>`;
 }
 
@@ -962,6 +984,32 @@ const ACHIEVEMENTS = [
     name: 'Kruununtekijä',
     desc: 'Arvasi MM-mestarin oikein',
     check: ({ bracket }) => {
+      if (!bracket || !bracket.champion || !actualBracket.champion) return false;
+      return bracket.champion === actualBracket.champion;
+    },
+  },
+  {
+    id:   'top8_scout',
+    icon: '🔭',
+    name: 'Skautti',
+    desc: 'Vähintään 4 oikeaa joukkuetta 8 parhaan veikkauksessa',
+    check: ({ bracket }) => {
+      if (!bracket) return false;
+      const actualR16 = ['r16_1','r16_2','r16_3','r16_4','r16_5','r16_6','r16_7','r16_8']
+        .map(k => actualBracket[k]).filter(Boolean);
+      const userR16 = ['r16_1','r16_2','r16_3','r16_4','r16_5','r16_6','r16_7','r16_8']
+        .map(k => bracket[k]).filter(Boolean);
+      return userR16.filter(t => actualR16.includes(t)).length >= 4;
+    },
+  },
+  {
+    id:   'goat',
+    icon: '🐐',
+    name: 'GOAT',
+    desc: 'Yli 75 pistettä + oikea mestari mestaruusveikkauksessa + vähintään 10 tarkkaa tulosta',
+    check: ({ stats, bracket }) => {
+      if (stats.total < 75) return false;
+      if (stats.exact < 10) return false;
       if (!bracket || !bracket.champion || !actualBracket.champion) return false;
       return bracket.champion === actualBracket.champion;
     },
