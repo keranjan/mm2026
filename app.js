@@ -3,9 +3,12 @@
    ═══════════════════════════════════════════ */
 
 /* ── Asetukset – muuta ADMIN_PIN ── */
-const ADMIN_PIN    = '35242083';
-const SUPABASE_URL = 'https://oaoppcicnsnvjkbbjfda.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_5my6qDEV3aFTxP8F8xVnlg_2mPaekjo';
+const ADMIN_PIN      = '35242083';
+const SUPABASE_URL   = 'https://oaoppcicnsnvjkbbjfda.supabase.co';
+const SUPABASE_KEY   = 'sb_publishable_5my6qDEV3aFTxP8F8xVnlg_2mPaekjo';
+const FD_API_KEY     = '4d37680e3ea84e4db9f86422e349399e'; // football-data.org
+const FD_COMPETITION = 'WC';
+const FD_SEASON      = '2026';
 
 /* ── Supabase REST API -apufunktio ── */
 const api = (path, opts = {}) => {
@@ -152,22 +155,22 @@ const MATCHES = [
   {id:'m72',g:'J',h:'Jordan',       a:'Argentina',    t:'2026-06-28T02:00Z'},
 
   // ── 32 PARHAAN KIERROS (28.6.–3.7.) ──────────────────────
-  {id:'r01',g:'R32',h:'TBD',a:'TBD',t:'2026-06-28T19:00Z'},  // Los Angeles
-  {id:'r02',g:'R32',h:'TBD',a:'TBD',t:'2026-06-29T17:00Z'},  // Houston
-  {id:'r03',g:'R32',h:'TBD',a:'TBD',t:'2026-06-29T20:30Z'},  // Boston
-  {id:'r04',g:'R32',h:'TBD',a:'TBD',t:'2026-06-30T01:00Z'},  // Monterrey
-  {id:'r05',g:'R32',h:'TBD',a:'TBD',t:'2026-06-30T17:00Z'},  // Dallas
-  {id:'r06',g:'R32',h:'TBD',a:'TBD',t:'2026-06-30T21:00Z'},  // New York/NJ
-  {id:'r07',g:'R32',h:'TBD',a:'TBD',t:'2026-07-01T01:00Z'},  // Mexico City
-  {id:'r08',g:'R32',h:'TBD',a:'TBD',t:'2026-07-01T16:00Z'},  // Atlanta
-  {id:'r09',g:'R32',h:'TBD',a:'TBD',t:'2026-07-01T20:00Z'},  // Seattle
-  {id:'r10',g:'R32',h:'TBD',a:'TBD',t:'2026-07-02T00:00Z'},  // San Francisco
-  {id:'r11',g:'R32',h:'TBD',a:'TBD',t:'2026-07-02T19:00Z'},  // Los Angeles
-  {id:'r12',g:'R32',h:'TBD',a:'TBD',t:'2026-07-02T23:00Z'},  // Toronto
-  {id:'r13',g:'R32',h:'TBD',a:'TBD',t:'2026-07-03T03:00Z'},  // Vancouver
-  {id:'r14',g:'R32',h:'TBD',a:'TBD',t:'2026-07-03T18:00Z'},  // Dallas
-  {id:'r15',g:'R32',h:'TBD',a:'TBD',t:'2026-07-03T22:00Z'},  // Miami
-  {id:'r16',g:'R32',h:'TBD',a:'TBD',t:'2026-07-04T01:30Z'},  // Kansas City
+  {id:'r01',g:'R32',h:'South Africa', a:'Canada',      t:'2026-06-28T19:00Z'},  // Los Angeles
+  {id:'r02',g:'R32',h:'Brazil',       a:'Japan',       t:'2026-06-29T17:00Z'},  // Houston
+  {id:'r03',g:'R32',h:'Germany',      a:'Paraguay',    t:'2026-06-29T20:30Z'},  // Boston
+  {id:'r04',g:'R32',h:'Netherlands',  a:'Morocco',     t:'2026-06-30T01:00Z'},  // Monterrey
+  {id:'r05',g:'R32',h:'Ivory Coast',  a:'Norway',      t:'2026-06-30T17:00Z'},  // Dallas
+  {id:'r06',g:'R32',h:'France',       a:'Sweden',      t:'2026-06-30T21:00Z'},  // New York/NJ
+  {id:'r07',g:'R32',h:'Mexico',       a:'Ecuador',     t:'2026-07-01T01:00Z'},  // Mexico City
+  {id:'r08',g:'R32',h:'England',      a:'DR Congo',    t:'2026-07-01T16:00Z'},  // Atlanta
+  {id:'r09',g:'R32',h:'Belgium',      a:'Senegal',     t:'2026-07-01T20:00Z'},  // Seattle
+  {id:'r10',g:'R32',h:'USA',          a:'Bosnia',      t:'2026-07-02T00:00Z'},  // San Francisco
+  {id:'r11',g:'R32',h:'Spain',       a:'Austria',     t:'2026-07-02T19:00Z'},  // Los Angeles
+  {id:'r12',g:'R32',h:'Portugal',    a:'Croatia',     t:'2026-07-02T23:00Z'},  // Toronto
+  {id:'r13',g:'R32',h:'Switzerland', a:'Algeria',     t:'2026-07-03T03:00Z'},  // Vancouver
+  {id:'r14',g:'R32',h:'Australia',   a:'Egypt',       t:'2026-07-03T18:00Z'},  // Dallas
+  {id:'r15',g:'R32',h:'Argentina',   a:'Cape Verde',  t:'2026-07-03T22:00Z'},  // Miami
+  {id:'r16',g:'R32',h:'Colombia',    a:'Ghana',       t:'2026-07-04T01:30Z'},  // Kansas City
 
   // ── 16 PARHAAN KIERROS (4.–7.7.) ─────────────────────────
   {id:'s01',g:'R16',h:'TBD',a:'TBD',t:'2026-07-04T17:00Z'},  // Houston
@@ -199,16 +202,46 @@ const MATCHES = [
 ══════════════════════════════════════════ */
 let predictions = {};
 let results     = {};
+let liveScores  = {}; // IN_PLAY-tilanteet — ei tallenneta Supabaseen, ei lukitse kortteja
 let users       = {};
 let currentUser = localStorage.getItem('wc26_me') || '';
-let adminOpen   = false;
+let adminOpen    = false;
+let summaryActive = false;
+
+async function loadSettings() {
+  try {
+    const res = await api('app_settings?key=eq.summary_active&select=value');
+    if (!res.ok) return;
+    const rows = await res.json();
+    summaryActive = rows.length > 0 && rows[0].value === 'true';
+  } catch (e) { console.error('loadSettings:', e); }
+}
+
+async function toggleSummary() {
+  summaryActive = !summaryActive;
+  try {
+    await api('app_settings?on_conflict=key', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify({ key: 'summary_active', value: String(summaryActive) }),
+    });
+  } catch (e) { console.error('saveSettings:', e); }
+  applySummaryVisibility();
+  if (summaryActive) toast('Yhteenveto näkyvissä kaikille pelaajille!', 'success');
+  else toast('Yhteenveto piilotettu', 'info');
+}
 
 /* ══════════════════════════════════════════
    APUFUNKTIOT
 ══════════════════════════════════════════ */
 
-function isLocked(m) { return !!ROUND_NAMES[m.g] || !!results[m.id] || Date.now() >= new Date(m.t).getTime(); }
+function isLocked(m)   { return (m.g !== 'R32' && !!ROUND_NAMES[m.g]) || !!results[m.id] || Date.now() >= new Date(m.t).getTime(); }
 function isKnockout(m) { return !!ROUND_NAMES[m.g]; }
+function isLive(m) {
+  // Live kun peli on alkanut, tulosta ei ole vielä tallennettu, ja max 3h aloituksesta
+  const start = new Date(m.t).getTime();
+  return Date.now() >= start && Date.now() <= start + 3 * 60 * 60 * 1000 && !results[m.id];
+}
 
 function fmtTime(iso) {
   return new Date(iso).toLocaleTimeString('fi-FI', {
@@ -251,6 +284,105 @@ async function loadResults() {
     rows.forEach(r => { results[r.match_id] = { h: r.home_goals, a: r.away_goals }; });
   } catch (e) { console.error('loadResults:', e); }
 }
+
+// Joukkuenimien kartoitus football-data.org → sovelluksen nimet
+const FD_TEAM_MAP = {
+  'Mexico': 'Mexico', 'South Africa': 'South Africa', 'South Korea': 'South Korea',
+  'Czech Republic': 'Czechia', 'Czechia': 'Czechia', 'Canada': 'Canada',
+  'Bosnia and Herzegovina': 'Bosnia', 'Bosnia-Herzegovina': 'Bosnia',
+  'USA': 'USA', 'United States': 'USA', 'Paraguay': 'Paraguay',
+  'Qatar': 'Qatar', 'Switzerland': 'Switzerland', 'Brazil': 'Brazil',
+  'Morocco': 'Morocco', 'Haiti': 'Haiti', 'Scotland': 'Scotland',
+  'Australia': 'Australia', 'Turkey': 'Turkiye', 'Türkiye': 'Turkiye',
+  'Germany': 'Germany', 'Curaçao': 'Curacao', 'Netherlands': 'Netherlands',
+  'Japan': 'Japan', "Côte d'Ivoire": 'Ivory Coast', 'Ivory Coast': 'Ivory Coast',
+  'Ecuador': 'Ecuador', 'Sweden': 'Sweden', 'Tunisia': 'Tunisia',
+  'Spain': 'Spain', 'Cape Verde': 'Cape Verde', 'Belgium': 'Belgium',
+  'Egypt': 'Egypt', 'Saudi Arabia': 'Saudi Arabia', 'Uruguay': 'Uruguay',
+  'Iran': 'Iran', 'New Zealand': 'New Zealand', 'France': 'France',
+  'Senegal': 'Senegal', 'Iraq': 'Iraq', 'Norway': 'Norway',
+  'Argentina': 'Argentina', 'Algeria': 'Algeria', 'Austria': 'Austria',
+  'Jordan': 'Jordan', 'Portugal': 'Portugal', 'DR Congo': 'DR Congo',
+  'Congo DR': 'DR Congo', 'Democratic Republic of Congo': 'DR Congo',
+  'England': 'England', 'Croatia': 'Croatia',
+  'Ghana': 'Ghana', 'Panama': 'Panama', 'Uzbekistan': 'Uzbekistan',
+  'Colombia': 'Colombia',
+};
+
+async function fetchLiveResults() {
+  try {
+    const proxyUrl = `${SUPABASE_URL}/functions/v1/football-results?path=/competitions/${FD_COMPETITION}/matches&params=season=${FD_SEASON}%26status=IN_PLAY,PAUSED,FINISHED`;
+    const res = await fetch(proxyUrl, {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'apikey': SUPABASE_KEY,
+      }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const matches = data.matches || [];
+
+    // Nollataan live-tilanteet ennen päivitystä
+    liveScores = {};
+
+    for (const fdMatch of matches) {
+      const score = fdMatch.score;
+      if (!score) continue;
+
+      const fdHome = FD_TEAM_MAP[fdMatch.homeTeam.name] || fdMatch.homeTeam.name;
+      const fdAway = FD_TEAM_MAP[fdMatch.awayTeam.name] || fdMatch.awayTeam.name;
+
+      const appMatch = MATCHES.find(m =>
+        (m.h === fdHome && m.a === fdAway) ||
+        (m.h === fdAway && m.a === fdHome)
+      );
+      if (!appMatch) continue;
+
+      const isFinished = fdMatch.status === 'FINISHED';
+      const isInPlay   = ['IN_PLAY', 'PAUSED', 'HALF_TIME'].includes(fdMatch.status);
+
+      if (isFinished) {
+        // Jos tulos on jo tallennettu (admin on syöttänyt tai aiemmin tallennettu),
+        // säilytetään se eikä ylikirjoiteta API:n datalla
+        if (results[appMatch.id]) continue;
+
+        // Jatkoaika/rangaistuspotkut: käytetään regularTime-tulosta fullTimen sijaan
+        // (veikkauspisteet lasketaan normaaliajan tuloksen perusteella)
+        const usesRegularTime = score.duration === 'EXTRA_TIME' || score.duration === 'PENALTY_SHOOTOUT';
+        const source = (usesRegularTime && score.regularTime &&
+                        score.regularTime.home !== null && score.regularTime.home !== undefined)
+          ? score.regularTime
+          : score.fullTime;
+
+        const homeGoals = source?.home;
+        const awayGoals = source?.away;
+        if (homeGoals === null || homeGoals === undefined || awayGoals === null || awayGoals === undefined) continue;
+
+        const h = appMatch.h === fdHome ? homeGoals : awayGoals;
+        const a = appMatch.h === fdHome ? awayGoals : homeGoals;
+
+        // Tallennetaan Supabaseen
+        await api('results?on_conflict=match_id', {
+          method: 'POST',
+          prefer: 'resolution=merge-duplicates',
+          body: JSON.stringify({ match_id: appMatch.id, home_goals: h, away_goals: a }),
+        });
+        results[appMatch.id] = { h, a };
+
+      } else if (isInPlay) {
+        // Käynnissä — tallennetaan vain liveScores-objektiin, EI Supabaseen eikä results-objektiin
+        const homeGoals = score.currentScore?.home ?? null;
+        const awayGoals = score.currentScore?.away ?? null;
+        if (homeGoals === null || awayGoals === null) continue;
+
+        const h = appMatch.h === fdHome ? homeGoals : awayGoals;
+        const a = appMatch.h === fdHome ? awayGoals : homeGoals;
+        liveScores[appMatch.id] = { h, a };
+      }
+    }
+  } catch (e) { console.error('fetchLiveResults:', e); }
+}
+
 
 let savedPredictions = {}; // kopio tietokannasta, ei muutu ennen seuraavaa latausta
 
@@ -332,7 +464,7 @@ function stepPred(id, side, delta) {
 function updateUnsavedBanner() {
   const unsavedBanner = document.getElementById('unsaved-banner');
   if (!unsavedBanner || !currentUser) { if (unsavedBanner) unsavedBanner.style.display = 'none'; return; }
-  const openMatches = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
+  const openMatches = MATCHES.filter(m => !isLocked(m) && (m.g === 'R32' || !isKnockout(m)));
   const unsaved = openMatches.filter(m => {
     const local = predictions[m.id];
     if (!local || local.h === null || local.a === null) return false;
@@ -349,7 +481,7 @@ function updateUnsavedBanner() {
 }
 
 function updateProgress() {
-  const open = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
+  const open = MATCHES.filter(m => !isLocked(m) && (m.g === 'R32' || !isKnockout(m)));
   const done = open.filter(m => predDone(m.id)).length;
   const pct  = open.length ? Math.round(done / open.length * 100) : 100;
   document.getElementById('progress-fill').style.width  = pct + '%';
@@ -424,6 +556,7 @@ function topPredictions(id) {
 function matchCardHtml(m) {
   const p      = getPred(m.id);
   const locked = isLocked(m);
+  const live   = isLive(m);
   const hv     = p.h !== null ? p.h : null;
   const av     = p.a !== null ? p.a : null;
   const dis    = locked ? 'disabled' : '';
@@ -431,12 +564,20 @@ function matchCardHtml(m) {
   const aDisp  = av !== null ? av : '–';
   const hEmpty = hv === null ? ' empty' : '';
   const aEmpty = av === null ? ' empty' : '';
-  const saved  = !locked && !isKnockout(m) && isSavedPred(m.id);
-  const filled = !locked && !isKnockout(m) && hv !== null && av !== null;
+  const canPred = !locked && (m.g === 'R32' || !isKnockout(m));
+  const saved  = canPred && isSavedPred(m.id);
+  const filled = canPred && hv !== null && av !== null;
   const savedTag = saved
     ? '<span class="pred-saved-tag">✓ tallennettu</span>'
     : (filled ? '<span class="pred-unsaved-tag">● tallentamatta</span>' : '');
-  return `<div class="match-card ${locked ? 'locked' : ''} ${isKnockout(m) ? 'knockout' : ''} ${cardExtraClass(m.id)}" id="mc-${m.id}">
+
+  const liveScore = live && liveScores[m.id]
+    ? `${liveScores[m.id].h}–${liveScores[m.id].a}` : '';
+  const metaRight = live
+    ? `<span class="live-badge">🔴 LIVE${liveScore ? ' ' + liveScore : ''}</span>`
+    : locked ? '&#128274; lukittu' : savedTag;
+
+  return `<div class="match-card ${locked ? 'locked' : ''} ${live ? 'live' : ''} ${isKnockout(m) ? 'knockout' : ''} ${m.g === 'R32' ? 'r32' : ''} ${cardExtraClass(m.id)}" id="mc-${m.id}">
     <div class="match-row">
       <div class="team-block">
         <span class="flag">${flag(m.h)}</span>
@@ -462,7 +603,7 @@ function matchCardHtml(m) {
     </div>
     <div class="match-meta">
       <span>${ROUND_NAMES[m.g] ? `${fmtDate(m.t)} &middot; ${fmtTime(m.t)}` : `Lohko ${m.g} &middot; ${fmtTime(m.t)}`}</span>
-      <span>${locked ? '&#128274; lukittu' : savedTag}</span>
+      <span>${metaRight}</span>
     </div>
     ${resultBadge(m.id)}
     ${locked ? topPredictions(m.id) : ''}
@@ -514,7 +655,7 @@ function renderMatches() {
   const sorted = [...MATCHES].sort((a, b) => new Date(a.t) - new Date(b.t));
   let html = '', lastKey = '';
   for (const m of sorted) {
-    if (hideLocked && isLocked(m)) continue;
+    if (hideLocked && isLocked(m) && !isLive(m)) continue;
     const isKnockoutMatch = !!ROUND_NAMES[m.g];
     const day = dayKey(m.t);
     const key = isKnockoutMatch ? `${m.g}__${day}` : day;
@@ -542,7 +683,7 @@ function refreshCard(id) {
 async function savePredictions() {
   const name = document.getElementById('username').value.trim();
   if (!name) { toast('Kirjoita nimesi ensin', 'error'); return; }
-  const open = MATCHES.filter(m => !isLocked(m) && !isKnockout(m));
+  const open = MATCHES.filter(m => !isLocked(m) && (m.g === 'R32' || !isKnockout(m)));
   if (!open.some(m => predDone(m.id))) { toast('Syötä vähintään yksi tulos ensin', 'error'); return; }
 
   const btn = document.getElementById('save-btn');
@@ -562,7 +703,7 @@ async function savePredictions() {
   });
   const safeRows = rows.filter(r => {
     const m = MATCHES.find(m => m.id === r.match_id);
-    return m && Date.now() < new Date(m.t).getTime() && !results[m.id] && !ROUND_NAMES[m.g];
+    return m && Date.now() < new Date(m.t).getTime() && !results[m.id] && (m.g === 'R32' || !ROUND_NAMES[m.g]);
   });
 
   if (safeRows.length === 0) {
@@ -1352,7 +1493,21 @@ function showTab(tab, btn) {
   if (tab === 'chart') renderChart();
   if (tab === 'bracket') renderBracket();
   if (tab === 'admin' && adminOpen) renderAdmin();
+  if (tab === 'summary') renderSummary();
 }
+
+function applySummaryVisibility() {
+  const show = summaryActive;
+  ['nav-summary', 'mobile-nav-summary'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  });
+  const tab = document.getElementById('tab-summary');
+  if (tab) tab.style.display = show ? '' : 'none';
+  const btn = document.getElementById('summary-toggle-btn');
+  if (btn) btn.textContent = show ? 'Piilota yhteenveto' : 'Aktivoi yhteenveto';
+}
+
 
 function toggleMenu() {
   const menu = document.getElementById('mobile-menu');
@@ -2042,6 +2197,286 @@ function pickTeam(team) {
    KÄYNNISTYS
 ══════════════════════════════════════════ */
 
+/* ══════════════════════════════════════════
+   TURNAUSYHTEENVETO
+══════════════════════════════════════════ */
+
+function calcPersonality(preds, stats) {
+  const exact  = stats.exact;
+  const total  = stats.total;
+  const played = Object.keys(preds).filter(id => {
+    const r = results[id]; const p = preds[id];
+    return r && p && p.h !== null;
+  }).length;
+  if (!played) return { icon: '🧠', name: 'Strategi', desc: 'Tasainen ja harkittu veikkaaja' };
+
+  // Uhkapelaaja: paljon isoja eroja veikkauksissa
+  const bigDiffs = Object.values(preds).filter(p => p && p.h !== null && Math.abs(p.h - p.a) >= 3).length;
+  // Tarkka-ampuja: paljon 3p-tuloksia
+  const exactRate = exact / played;
+  // Tulivuori: pitkä putki
+  const streak = calcStreak(preds);
+  // Onnekas: hyvät pisteet mutta pieni tarkka-osumatarkkuus
+  const luckyScore = total > 40 && exactRate < 0.1;
+
+  if (exactRate >= 0.18)  return { icon: '🎯', name: 'Tarkka-ampuja',  desc: 'Poikkeuksellinen kyky arvata tarkka tulos' };
+  if (streak >= 5)        return { icon: '🔥', name: 'Tulivuori',       desc: 'Piti pitkiä osumaputkia turnauksen aikana' };
+  if (bigDiffs >= 8)      return { icon: '🦁', name: 'Rohkea',          desc: 'Uskalsi veikkaa isoja eroja muiden arvatessa tasaisia' };
+  if (luckyScore)         return { icon: '🍀', name: 'Onnekas',          desc: 'Hyvät pisteet vähillä tarkoilla tuloksilla — onni suosi!' };
+  return                         { icon: '🧠', name: 'Strategi',         desc: 'Tasainen ja harkittu veikkaaja turnauksen alusta loppuun' };
+}
+
+function summarySlideHtml(icon, title, content, accent) {
+  return `<div class="summary-slide" style="${accent ? `border-color:${accent}` : ''}">
+    <div class="summary-slide-icon">${icon}</div>
+    <div class="summary-slide-title">${title}</div>
+    <div class="summary-slide-content">${content}</div>
+  </div>`;
+}
+
+function renderSummary() {
+  const container = document.getElementById('summary-container');
+  if (!container) return;
+
+  // ── Laske tilastot ──────────────────────────────────────
+  const ranked = Object.entries(users)
+    .map(([name, data]) => {
+      const base = calcUser(data.predictions || {});
+      const bracketPts = calcBracketPts(data.bracket);
+      return { name, ...base, bracketPts, total: base.total + bracketPts };
+    })
+    .sort((a, b) => b.total - a.total || b.exact - a.exact);
+
+  const totalGroupPts = ranked.reduce((s, u) => s + u.total, 0);
+  const winner = ranked[0];
+
+  // Vaikein ottelu (pienin osumaprosentti)
+  const matchDifficulty = MATCHES.filter(m => results[m.id]).map(m => {
+    const r = results[m.id];
+    const preds = Object.values(users).map(u => u.predictions?.[m.id]).filter(p => p && p.h !== null);
+    if (!preds.length) return null;
+    const hits = preds.filter(p => calcPts(p.h, p.a, r.h, r.a) > 0).length;
+    const exact = preds.filter(p => calcPts(p.h, p.a, r.h, r.a) === 3).length;
+    return { m, hits, exact, total: preds.length, pct: hits / preds.length, exactPct: exact / preds.length };
+  }).filter(Boolean);
+
+  const hardest = [...matchDifficulty].sort((a, b) => a.pct - b.pct)[0];
+  const easiest = [...matchDifficulty].sort((a, b) => b.pct - a.pct)[0];
+
+  // Eniten hajontaa (eniten eri tuloksia veikattiin)
+  const mostVaried = MATCHES.filter(m => results[m.id]).map(m => {
+    const preds = Object.values(users).map(u => u.predictions?.[m.id]).filter(p => p && p.h !== null);
+    const unique = new Set(preds.map(p => `${p.h}-${p.a}`)).size;
+    return { m, unique, total: preds.length };
+  }).sort((a, b) => b.unique - a.unique)[0];
+
+  // Suosituin veikkaus koko turnauksen ajalta
+  const allPredCounts = {};
+  MATCHES.forEach(m => {
+    Object.values(users).forEach(u => {
+      const p = u.predictions?.[m.id];
+      if (!p || p.h === null) return;
+      const key = `${p.h}–${p.a}`;
+      allPredCounts[key] = (allPredCounts[key] || 0) + 1;
+    });
+  });
+  const topPred = Object.entries(allPredCounts).sort((a, b) => b[1] - a[1])[0];
+
+  // Mestaruusveikkaus — kuinka moni arvasi oikein
+  const actualR16 = ['r16_1','r16_2','r16_3','r16_4','r16_5','r16_6','r16_7','r16_8'].map(k => actualBracket[k]).filter(Boolean);
+  const actualQf  = ['qf1','qf2','qf3','qf4'].map(k => actualBracket[k]).filter(Boolean);
+  const r16Hits   = Object.values(users).filter(u => u.bracket && ['r16_1','r16_2','r16_3','r16_4','r16_5','r16_6','r16_7','r16_8'].map(k => u.bracket[k]).filter(t => actualR16.includes(t)).length >= 4).length;
+  const finalistHits = Object.values(users).filter(u => u.bracket && [u.bracket.finalist1, u.bracket.finalist2].some(t => [actualBracket.finalist1, actualBracket.finalist2].includes(t))).length;
+  const championHits = Object.values(users).filter(u => u.bracket?.champion && u.bracket.champion === actualBracket.champion).length;
+
+  // Henkilökohtaiset tiedot
+  const me = currentUser ? ranked.find(u => u.name === currentUser) : null;
+  const myRank = me ? ranked.indexOf(me) + 1 : null;
+  const myData = currentUser ? users[currentUser] : null;
+  const myPersonality = me && myData ? calcPersonality(myData.predictions || {}, me) : null;
+  const myStreak = myData ? calcStreak(myData.predictions || {}) : 0;
+  const myAchievements = me && myData ? calcAchievements(myData.predictions || {}, me, myData.bracket, me.bracketPts).filter(a => a.unlocked) : [];
+
+  // Viikon veikkaajat per viikko (yksinkertaistettu: keräämme top-pelaajat per 7pv-jakso)
+  const weekWinners = new Set();
+  if (ranked.length > 0) {
+    const allTimes = MATCHES.filter(m => results[m.id]).map(m => new Date(m.t).getTime()).sort();
+    if (allTimes.length) {
+      const start = allTimes[0];
+      const weeks = Math.ceil((allTimes[allTimes.length - 1] - start) / (7 * 86400000)) + 1;
+      for (let w = 0; w < weeks; w++) {
+        const wStart = start + w * 7 * 86400000;
+        const wEnd   = wStart + 7 * 86400000;
+        const wMatches = MATCHES.filter(m => results[m.id] && new Date(m.t).getTime() >= wStart && new Date(m.t).getTime() < wEnd);
+        if (!wMatches.length) continue;
+        const wRanked = Object.entries(users).map(([name, data]) => {
+          const pts = wMatches.reduce((s, m) => {
+            const r = results[m.id]; const p = data.predictions?.[m.id];
+            if (!r || !p || p.h === null) return s;
+            return s + calcPts(p.h, p.a, r.h, r.a);
+          }, 0);
+          return { name, pts };
+        }).sort((a, b) => b.pts - a.pts);
+        if (wRanked[0]?.pts > 0) weekWinners.add(wRanked[0].name);
+      }
+    }
+  }
+
+  // ── Rakennetaan slaidit ──────────────────────────────────
+  const currentLevel = TEAM_LEVELS.find(l => l.max === null || totalGroupPts < l.max) || TEAM_LEVELS[TEAM_LEVELS.length - 1];
+
+  const slides = [
+
+    // 1. Intro
+    summarySlideHtml('🏆', 'Turnaus on ohi!', `
+      <p>MM 2026 on pelattu.<br>Katsotaan miten P2014/2 selvisi!</p>
+    `, 'var(--gold-bright)'),
+
+    // 2. Porukan yhteistilastot
+    summarySlideHtml('🎯', 'Yhteistavoite', `
+      <div class="sum-stat-big">${totalGroupPts} pistettä</div>
+      <div class="sum-stat-sub">yhteensä koko porukalta</div>
+      <div class="sum-level-badge">${currentLevel.name}</div>
+      <div class="sum-stat-sub" style="margin-top:0.5rem">${ranked.length} veikkaajaa · ${Object.keys(results).length} ottelua pelattu</div>
+    `, 'var(--green-bright)'),
+
+    // 3. Voittaja
+    summarySlideHtml('🥇', 'Turnauksen mestari', `
+      <div class="sum-winner">${winner?.name || '—'}</div>
+      <div class="sum-stat-big" style="font-size:36px">${winner?.total || 0}p</div>
+      <div class="sum-stats-row">
+        <div class="sum-mini-stat"><span>${winner?.exact || 0}</span><label>tarkkaa</label></div>
+        <div class="sum-mini-stat"><span>${winner?.diff || 0}</span><label>oikea tulos</label></div>
+        <div class="sum-mini-stat"><span>${winner?.win || 0}</span><label>voittaja oikein</label></div>
+      </div>
+    `, 'var(--gold-bright)'),
+
+    // 4. Tulostaulukko top 3
+    summarySlideHtml('🏅', 'Lopullinen sijoitus', `
+      <div class="sum-podium">
+        ${ranked.slice(0, Math.min(ranked.length, 5)).map((u, i) => `
+          <div class="sum-podium-row ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">
+            <span class="sum-pos">${['🥇','🥈','🥉'][i] || (i+1)+'.'}</span>
+            <span class="sum-name">${u.name}</span>
+            <span class="sum-pts">${u.total}p</span>
+          </div>`).join('')}
+      </div>
+    `),
+
+    // 5. Viikon veikkaajat
+    summarySlideHtml('⭐', 'Viikon veikkaajat', `
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:0.75rem">Nämä veikkaajat johtivat kierroskohtaisessa pisteytyksessä</p>
+      <div class="sum-weekly-list">
+        ${[...weekWinners].map(name => `<span class="sum-chip">${name}</span>`).join('') || '<span class="sum-chip">—</span>'}
+      </div>
+    `),
+
+    // 6. Vaikein ottelu
+    summarySlideHtml('😤', 'Vaikein ottelu', hardest ? `
+      <div class="sum-match-name">${fi(hardest.m.h)} ${flag(hardest.m.h)} – ${flag(hardest.m.a)} ${fi(hardest.m.a)}</div>
+      <div class="sum-result-badge">${results[hardest.m.id].h}–${results[hardest.m.id].a}</div>
+      <div class="sum-stat-sub">Vain <strong>${hardest.hits}/${hardest.total}</strong> veikkaajaa arvasi oikein (${Math.round(hardest.pct*100)}%)</div>
+    ` : '<p>Ei tarpeeksi dataa</p>'),
+
+    // 7. Helpoin ottelu
+    summarySlideHtml('😎', 'Helpoin ottelu', easiest ? `
+      <div class="sum-match-name">${fi(easiest.m.h)} ${flag(easiest.m.h)} – ${flag(easiest.m.a)} ${fi(easiest.m.a)}</div>
+      <div class="sum-result-badge">${results[easiest.m.id].h}–${results[easiest.m.id].a}</div>
+      <div class="sum-stat-sub"><strong>${easiest.hits}/${easiest.total}</strong> veikkaajaa arvasi oikein (${Math.round(easiest.pct*100)}%)</div>
+    ` : '<p>Ei tarpeeksi dataa</p>'),
+
+    // 8. Eniten hajontaa
+    summarySlideHtml('🤔', 'Eniten mielipide-eroja', mostVaried ? `
+      <div class="sum-match-name">${fi(mostVaried.m.h)} ${flag(mostVaried.m.h)} – ${flag(mostVaried.m.a)} ${fi(mostVaried.m.a)}</div>
+      <div class="sum-result-badge">${results[mostVaried.m.id]?.h ?? '?'}–${results[mostVaried.m.id]?.a ?? '?'}</div>
+      <div class="sum-stat-sub"><strong>${mostVaried.unique}</strong> eri tulosta veikattiin ${mostVaried.total} veikkaajan kesken</div>
+    ` : '<p>Ei tarpeeksi dataa</p>'),
+
+    // 9. Suosituin veikkaus
+    summarySlideHtml('📊', 'Suosituin tulosveikkaus', topPred ? `
+      <p style="color:var(--text-muted);font-size:13px">Tätä tulosta veikattiin eniten koko turnauksen aikana</p>
+      <div class="sum-stat-big" style="font-size:48px;letter-spacing:0.1em">${topPred[0]}</div>
+      <div class="sum-stat-sub">${topPred[1]} veikkausta</div>
+    ` : '<p>Ei dataa</p>'),
+
+    // 10. Mestaruusveikkaus
+    summarySlideHtml('🏆', 'Mestaruusveikkauksen tulokset', `
+      <div class="sum-bracket-stats">
+        <div class="sum-mini-stat"><span>${r16Hits}</span><label>arvasi 4+ oikein<br>8 parhaan joukkoon</label></div>
+        <div class="sum-mini-stat"><span>${finalistHits}</span><label>arvasi finalistin<br>oikein</label></div>
+        <div class="sum-mini-stat"><span>${championHits}</span><label>arvasi mestarin<br>oikein</label></div>
+      </div>
+      ${actualBracket.champion ? `<div class="sum-champion-reveal">🏆 ${flag(actualBracket.champion)} ${fi(actualBracket.champion)}</div>` : ''}
+    `, 'var(--gold-bright)'),
+
+    // 11. Henkilökohtainen slide
+    ...(me && myData ? [summarySlideHtml('👤', `Sinun turnauksesi, ${me.name.split(' ')[0]}!`, `
+      <div class="sum-personal">
+        <div class="sum-rank-badge">Sija ${myRank} / ${ranked.length}</div>
+        <div class="sum-stats-row">
+          <div class="sum-mini-stat"><span>${me.total}</span><label>pistettä</label></div>
+          <div class="sum-mini-stat"><span>${me.exact}</span><label>tarkkaa</label></div>
+          <div class="sum-mini-stat"><span>${myStreak}</span><label>paras putki</label></div>
+          ${me.bracketPts ? `<div class="sum-mini-stat"><span>${me.bracketPts}</span><label>bonus</label></div>` : ''}
+        </div>
+        ${myAchievements.length ? `
+          <div class="sum-achievements">
+            ${myAchievements.map(a => `<span title="${a.name}">${a.icon}</span>`).join('')}
+          </div>
+          <div class="sum-stat-sub">${myAchievements.length} saavutusta avattu</div>
+        ` : ''}
+      </div>
+    `, 'var(--green-bright)')] : []),
+
+    // 12. Persoonallisuustyyppi
+    ...(myPersonality ? [summarySlideHtml(myPersonality.icon, `Veikkaajatyyppisi`, `
+      <div class="sum-personality-name">${myPersonality.name}</div>
+      <div class="sum-stat-sub">${myPersonality.desc}</div>
+    `, 'var(--green)')] : []),
+
+    // 13. Lopetusslide
+    summarySlideHtml('👋', 'Nähdään 2030!', `
+      <p>Kiitos kaikille turnauksen veikkaamisesta!<br>Oli hienoa kisailla yhdessä. ⚽</p>
+      <div class="sum-stat-sub" style="margin-top:1rem">P2014/2 — MM 2026</div>
+    `, 'var(--gold)'),
+
+  ];
+
+  // ── Slaidinavigaatio ───────────────────────────────────
+  container.innerHTML = `
+    <div class="summary-nav">
+      <button class="sum-nav-btn" id="sum-prev" onclick="summaryPrev()">←</button>
+      <span class="sum-counter" id="sum-counter">1 / ${slides.length}</span>
+      <button class="sum-nav-btn" id="sum-next" onclick="summaryNext()">→</button>
+    </div>
+    <div class="summary-slides" id="summary-slides">
+      ${slides.map((s, i) => `<div class="summary-slide-wrap ${i === 0 ? 'active' : ''}" data-idx="${i}">${s}</div>`).join('')}
+    </div>
+    <div class="summary-dots" id="summary-dots">
+      ${slides.map((_, i) => `<span class="sum-dot ${i === 0 ? 'active' : ''}" onclick="summaryGoTo(${i})"></span>`).join('')}
+    </div>
+  `;
+  summaryCurrentSlide = 0;
+}
+
+let summaryCurrentSlide = 0;
+
+function summaryGoTo(idx) {
+  const wraps = document.querySelectorAll('.summary-slide-wrap');
+  const dots  = document.querySelectorAll('.sum-dot');
+  if (idx < 0 || idx >= wraps.length) return;
+  wraps.forEach(w => w.classList.remove('active'));
+  dots.forEach(d => d.classList.remove('active'));
+  wraps[idx].classList.add('active');
+  dots[idx].classList.add('active');
+  summaryCurrentSlide = idx;
+  document.getElementById('sum-counter').textContent = `${idx + 1} / ${wraps.length}`;
+  document.getElementById('sum-prev').disabled = idx === 0;
+  document.getElementById('sum-next').disabled = idx === wraps.length - 1;
+}
+function summaryNext() { summaryGoTo(summaryCurrentSlide + 1); }
+function summaryPrev() { summaryGoTo(summaryCurrentSlide - 1); }
+
 async function init() {
   if (currentUser) {
     document.getElementById('username').value = currentUser;
@@ -2050,18 +2485,41 @@ async function init() {
   renderMatches();
   document.getElementById('lb-body').innerHTML = '<div class="empty-state">Ladataan…</div>';
   await loadResults();
+  await fetchLiveResults();
+  await loadSettings();
+  applySummaryVisibility();
   await loadAllPredictions();
   await loadAllBrackets();
   await loadBracket();
   await loadActualBracket();
   renderMatches();
   renderLeaderboard();
+
+  // Normaali päivityssykli: 60s
   setInterval(async () => {
     await loadResults();
     await loadAllPredictions();
     await loadAllBrackets();
     renderMatches();
     renderLeaderboard();
+  }, 60_000);
+
+  // Tulosten haku: kerran minuutissa 30 min ajan pelin päättymisestä
+  // (football-data.org päivittää tuloksen ~0-15 min pelin jälkeen)
+  setInterval(async () => {
+    const now = Date.now();
+    const needsFetch = MATCHES.some(m => {
+      if (results[m.id]) return false; // tulos jo tallennettu
+      const start   = new Date(m.t).getTime();
+      const end     = start + 105 * 60 * 1000; // arvioitu loppu (90+15 min)
+      const window  = end + 30 * 60 * 1000;    // 30 min pelin päättymisestä
+      return now >= end && now <= window;
+    });
+    if (needsFetch) {
+      await fetchLiveResults();
+      renderMatches();
+      renderLeaderboard();
+    }
   }, 60_000);
   // Sulje profiili Escape-näppäimellä
   document.addEventListener('keydown', e => {
